@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #21C063;
+    --secondary: #1D1F1F;
+    --txt: rgba(255,255,255,0.6);
+    --white:#FAFAFA;
+    --background: #161717;
+}
+
+@theme inline {
+    --breakpoint-desktop: 1440px;
+    --breakpoint-laptop: 1200px;
+    --breakpoint-tablet: 992px;
+    --breakpoint-mobile: 768px;
+    --breakpoint-small: 520px;
+
+    --color-primary: var(--primary);
+    --color-secondary: var(--secondary);
+    --color-txt: var(--txt);
+    --color-white: var(--white);
+    --color-background: var(--background);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    height: 100vh;
+    overflow: hidden;
+    font-family: "Cairo", sans-serif;
+}
+
+::-webkit-scrollbar-track {
+    background-color: var(--background);
+}
+
+::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+    background-color: var(--secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--secondary);
+    border-radius: 100px;
+}
+
+.MuiTabs-indicator {
+    display: none !important;
+}
