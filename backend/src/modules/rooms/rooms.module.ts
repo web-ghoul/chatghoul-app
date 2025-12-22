@@ -6,6 +6,7 @@ import { Room, RoomSchema } from '../../schemas/room.schema';
 
 import { Media, MediaSchema } from '../../schemas/media.schema'; // Add this import
 import { CloudinaryModule } from '../cloudinary/cloudinary.module'; // Add this import
+import { UsersModule } from '../users/users.module';
 
 @Module({
     imports: [
@@ -13,7 +14,8 @@ import { CloudinaryModule } from '../cloudinary/cloudinary.module'; // Add this 
             { name: Room.name, schema: RoomSchema },
             { name: Media.name, schema: MediaSchema }, // Register Media
         ]),
-        CloudinaryModule, // Add this module
+        CloudinaryModule,
+        UsersModule,
     ],
     controllers: [RoomsController],
     providers: [RoomsService],

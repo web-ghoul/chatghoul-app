@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MessagesController } from './messages.controller';
+import { RoomMessagesController } from './room-messages.controller';
 import { MessagesService } from './messages.service';
 import { Message, MessageSchema } from '../../schemas/message.schema';
 import { Room, RoomSchema } from '../../schemas/room.schema';
 import { Media, MediaSchema } from '../../schemas/media.schema';
+import { UsersModule } from '../users/users.module';
 
 @Module({
     imports: [
@@ -13,8 +15,9 @@ import { Media, MediaSchema } from '../../schemas/media.schema';
             { name: Room.name, schema: RoomSchema },
             { name: Media.name, schema: MediaSchema },
         ]),
+        UsersModule,
     ],
-    controllers: [MessagesController],
+    controllers: [MessagesController, RoomMessagesController],
     providers: [MessagesService],
     exports: [MessagesService],
 })

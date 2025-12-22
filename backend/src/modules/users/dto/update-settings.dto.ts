@@ -12,4 +12,12 @@ export class UpdateSettingsDto {
     @IsBoolean()
     @IsOptional()
     enterIsSend?: boolean;
+
+    @IsString()
+    @IsOptional()
+    avatarPrivacy?: 'everyone' | 'contacts' | 'nobody';
+
+    @IsString()
+    @IsOptional()
+    aboutPrivacy?: 'everyone' | 'contacts' | 'nobody';
 }

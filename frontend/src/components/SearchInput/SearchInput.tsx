@@ -9,7 +9,7 @@ const SearchInput = () => {
     <div className="px-5">
       <div
         className={`grid justify-stretch items-center grid-cols-[auto_1fr_auto] rounded-full transition-all border ${
-          isFocused ? "border-primary outline-1 outline-primary bg-background" : "border-secondary hover:border-gray-700 bg-secondary"
+          isFocused ? "border-primary outline-1 outline-primary bg-background" : "border-secondary hover:border-gray bg-secondary_light"
         } group px-2 py-1.5`}
       >
         <i className="px-3">

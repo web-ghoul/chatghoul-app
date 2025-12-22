@@ -33,6 +33,9 @@ export class Message {
 
     @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], default: [] })
     deliveredTo: Types.ObjectId[];
+
+    @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], default: [] })
+    starredBy: Types.ObjectId[];
 }
 
 export const MessageSchema = SchemaFactory.createForClass(Message);

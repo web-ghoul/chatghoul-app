@@ -1,28 +1,25 @@
-import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { MessagesService } from './messages.service';
-import { SendMessageDto } from './dto/send-message.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-@Controller('rooms/:roomId/messages')
+@Controller('messages')
 @UseGuards(JwtAuthGuard)
 export class MessagesController {
     constructor(private readonly messagesService: MessagesService) { }
 
-    @Post()
-    async sendMessage(
-        @Param('roomId') roomId: string,
-        @Body() sendMessageDto: SendMessageDto,
-        @Req() req,
-    ) {
-        return this.messagesService.sendMessage(roomId, sendMessageDto, req.user._id);
-    }
-
-    @Get()
-    async getMessages(
-        @Param('roomId') roomId: string,
+    @Get('starred')
+    async getStarredMessages(
         @Query('page') page: number,
         @Req() req,
     ) {
-        return this.messagesService.getMessages(roomId, req.user._id, page);
+        return this.messagesService.getStarredMessages(req.user._id, page);
+    }
+
+    @Post(':id/star')
+    async toggleStar(
+        @Param('id') id: string,
+        @Req() req,
+    ) {
+        return this.messagesService.toggleStar(id, req.user._id);
     }
 }

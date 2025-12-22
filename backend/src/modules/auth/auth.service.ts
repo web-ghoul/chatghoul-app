@@ -19,6 +19,7 @@ import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ChatGateway } from '../gateways/chat.gateway';
 
 @Injectable()
 export class AuthService {
@@ -27,6 +28,7 @@ export class AuthService {
         private jwtService: JwtService,
         private mailService: MailService,
         @Inject(CACHE_MANAGER) private cacheManager: any,
+        private chatGateway: ChatGateway,
     ) { }
 
     async register(registerDto: RegisterDto) {
@@ -88,6 +90,9 @@ export class AuthService {
         if (!isPasswordValid) {
             throw new UnauthorizedException('Invalid credentials');
         }
+
+        // Force logout from other devices
+        this.chatGateway.forceLogout(user._id.toString());
 
         // Update status to online
         user.status = 'online';

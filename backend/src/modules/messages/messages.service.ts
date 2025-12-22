@@ -6,6 +6,7 @@ import { Room, RoomDocument } from '../../schemas/room.schema';
 import { Media, MediaDocument } from '../../schemas/media.schema';
 import { SendMessageDto } from './dto/send-message.dto';
 import { ChatGateway } from '../gateways/chat.gateway';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class MessagesService {
@@ -14,6 +15,7 @@ export class MessagesService {
         @InjectModel(Room.name) private roomModel: Model<RoomDocument>,
         @InjectModel(Media.name) private mediaModel: Model<MediaDocument>,
         private chatGateway: ChatGateway,
+        private readonly usersService: UsersService,
     ) { }
 
     async sendMessage(roomId: string, sendMessageDto: SendMessageDto, senderId: string) {
@@ -67,9 +69,17 @@ export class MessagesService {
         room.lastMessage = newMessage._id as any;
         await room.save();
 
-        const populatedMessage = await newMessage.populate('sender', 'name avatar');
+        const populatedMessage = await newMessage.populate('sender', 'name avatar about settings contacts');
 
-        this.chatGateway.emitToRoom(roomId, 'new_message', populatedMessage);
+        // Emit to each participant individually to respect privacy settings
+        room.participants.forEach(pId => {
+            const pIdStr = pId.toString();
+            const sanitizedMsg = {
+                ...populatedMessage.toObject(),
+                sender: this.usersService.sanitizeUserProfile(populatedMessage.sender, pIdStr)
+            };
+            this.chatGateway.emitToUser(pIdStr, 'new_message', sanitizedMsg);
+        });
 
         return populatedMessage;
     }
@@ -88,9 +98,53 @@ export class MessagesService {
             .sort({ createdAt: -1 })
             .skip((page - 1) * limit)
             .limit(limit)
-            .populate('sender', 'name avatar')
+            .populate('sender', 'name avatar about settings contacts')
             .exec();
 
+        messages.forEach(msg => {
+            if (msg.sender) {
+                msg.sender = this.usersService.sanitizeUserProfile(msg.sender, userId);
+            }
+        });
+
         return messages.reverse();
+    }
+
+    async toggleStar(messageId: string, userId: string) {
+        const message = await this.messageModel.findById(messageId);
+        if (!message) {
+            throw new NotFoundException('Message not found');
+        }
+
+        const userIdObj = new Types.ObjectId(userId);
+        const index = message.starredBy.findIndex(id => id.equals(userIdObj));
+
+        if (index === -1) {
+            message.starredBy.push(userIdObj);
+        } else {
+            message.starredBy.splice(index, 1);
+        }
+
+        await message.save();
+        return { starred: index === -1 };
+    }
+
+    async getStarredMessages(userId: string, page: number = 1, limit: number = 50) {
+        const messages = await this.messageModel
+            .find({ starredBy: new Types.ObjectId(userId) })
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .populate('sender', 'name avatar about settings contacts')
+            .populate('room', 'name type')
+            .exec();
+
+        messages.forEach(msg => {
+            if (msg.sender) {
+                msg.sender = this.usersService.sanitizeUserProfile(msg.sender, userId);
+            }
+        });
+
+        return messages;
     }
 }

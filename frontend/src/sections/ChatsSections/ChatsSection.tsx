@@ -5,19 +5,20 @@ import NewChatViewSection from "./NewChatViewSection";
 import RoomInfoSection from "./RoomInfoSection";
 import RoomMediaSection from "./RoomMediaSection";
 import RoomPermissionsSection from "./RoomPermissionsSection";
+import RoomSection from "./RoomSection";
 
 const ChatsSection = () => {
-  const user = useChatsStore((state) => state.user);
+  const room = useChatsStore((state) => state.room);
   const chatTab = useChatsStore((state) => state.chatTab);
   const roomTab = useChatsStore((state) => state.roomTab);
 
   return (
     <section
-      className={`grid justify-stretch items-center grid-cols-[30%_1fr_30%] h-screen`}
+      className={`grid justify-stretch items-center grid-cols-[30%_1fr_auto] h-screen`}
     >
       {chatTab === "chats" ? <ChatsViewSection /> : <></>}
       {chatTab === "new_chat" ? <NewChatViewSection /> : <></>}
-      {user ? <></> : <WelcomeView />}
+      {room ? <RoomSection /> : <WelcomeView />}
       {roomTab === "info" ? <RoomInfoSection /> : <></>}
       {roomTab === "media" ? <RoomMediaSection /> : <></>}
       {roomTab === "permissions" ? <RoomPermissionsSection /> : <></>}

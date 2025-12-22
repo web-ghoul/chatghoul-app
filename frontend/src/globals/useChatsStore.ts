@@ -1,23 +1,23 @@
 import { create } from "zustand";
 
 export type ChatsState = {
-    user?: string;
+    room?: string;
     chatTab:"chats"|"new_chat"|"new_group";
     roomTab?:"info"|"permissions"|"media"
 };
 
 type ChatsActions = {
-    setUser: (payload?: string) => void;
+    setRoom: (payload?: string) => void;
     setChatTab: (payload: "chats"|"new_chat"|"new_group") => void;
     setRoomTab: (payload?: "info"|"permissions"|"media") => void;
 };
 
 export const useChatsStore = create<ChatsState & ChatsActions>((set) => ({
-    user: undefined,
+    room: undefined,
     chatTab: 'chats',
     roomTab: undefined,
 
-    setUser: (payload) => set({ user: payload }),
+    setRoom: (payload) => set({ room: payload }),
     setChatTab: (payload) => set({ chatTab: payload }),
     setRoomTab: (payload) => set({ roomTab: payload }),
 }));

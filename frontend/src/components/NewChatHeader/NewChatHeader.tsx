@@ -6,7 +6,7 @@ const NewChatHeader = () => {
   const setChatTab = useChatsStore((state) => state.setChatTab);
 
   return (
-    <header className="flex justify-between items-center gap-4 px-5">
+    <header className="flex justify-between items-center gap-4 px-5 min-h-10">
       <div className="flex justify-center items-center gap-4 text-white">
         <Icon onClick={() => setChatTab("chats")} variant="chats">
           <ArrowLeftIcon />

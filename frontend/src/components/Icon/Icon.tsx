@@ -14,14 +14,14 @@ const Icon = ({
   return (
     <div
       onClick={onClick}
-      className={`w-10 h-10 rounded-full transition-all hover:cursor-pointer flex justify-center items-center ${
+      className={`w-10 h-10 [&_svg]:w-5 [&_svg]:transition-all hover:[&_svg]:scale-90 ${active && "[&_svg]:scale-90"} rounded-full transition-all hover:cursor-pointer flex justify-center items-center ${
         variant === "chats" && "relative"
       } ${
         variant === "chats"
           ? "text-white"
           : active
-          ? "text-white bg-background"
-          : "text-gray-400"
+          ? "text-white bg-gray"
+          : "text-txt hover:text-white hover:bg-gray"
       } group`}
     >
       <div className="relative z-1">{children}</div>

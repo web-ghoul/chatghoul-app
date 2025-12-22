@@ -2,17 +2,20 @@ import { Injectable, BadRequestException, NotFoundException, ForbiddenException 
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Room, RoomDocument } from '../../schemas/room.schema';
+import { Message, MessageDocument } from '../../schemas/message.schema';
 import { CreateRoomDto } from './dto/create-room.dto';
-
 import { Media, MediaDocument } from '../../schemas/media.schema'; // Add this import
 import { CloudinaryService } from '../cloudinary/cloudinary.service'; // Add this import
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class RoomsService {
     constructor(
         @InjectModel(Room.name) private roomModel: Model<RoomDocument>,
+        @InjectModel(Message.name) private messageModel: Model<MessageDocument>,
         @InjectModel(Media.name) private mediaModel: Model<MediaDocument>, // Inject MediaModel
         private readonly cloudinaryService: CloudinaryService, // Inject Service
+        private readonly usersService: UsersService,
     ) { }
 
     async createRoom(createRoomDto: CreateRoomDto, creatorId: string) {
@@ -58,19 +61,28 @@ export class RoomsService {
     }
 
     async getUserRooms(userId: string) {
-        return this.roomModel
+        const rooms = await this.roomModel
             .find({ participants: userId })
-            .populate('participants', 'name avatar status') // Adjusted fields
+            .populate('participants', 'name avatar status about settings contacts')
             .populate('lastMessage')
-            .sort({ updatedAt: -1 });
+            .sort({ updatedAt: -1 })
+            .exec();
+
+        rooms.forEach(room => {
+            room.participants = room.participants.map(p => this.usersService.sanitizeUserProfile(p, userId)) as any;
+        });
+
+        return rooms.sort((a, b) => {
+            const aPinned = a.pinnedBy.some(id => id.toString() === userId);
+            const bPinned = b.pinnedBy.some(id => id.toString() === userId);
+            if (aPinned && !bPinned) return -1;
+            if (!aPinned && bPinned) return 1;
+            return 0;
+        });
     }
 
-    async getRoomById(roomId: string, userId: string) {
-        const room = await this.roomModel.findById(roomId)
-            .populate('participants', 'name avatar status lastSeen about phone email')
-            .populate('admins', 'name avatar')
-            .populate('superAdmin', 'name avatar');
-
+    async togglePin(roomId: string, userId: string) {
+        const room = await this.roomModel.findById(roomId);
         if (!room) {
             throw new NotFoundException('Room not found');
         }
@@ -79,7 +91,120 @@ export class RoomsService {
             throw new ForbiddenException('You are not a participant in this room');
         }
 
+        const userIdObj = new Types.ObjectId(userId);
+        const index = room.pinnedBy.findIndex(id => id.equals(userIdObj));
+
+        if (index === -1) {
+            room.pinnedBy.push(userIdObj);
+        } else {
+            room.pinnedBy.splice(index, 1);
+        }
+
+        await room.save();
+        return { pinned: index === -1 };
+    }
+
+    async getRoomById(roomId: string, userId: string) {
+        const room = await this.roomModel.findById(roomId)
+            .populate('participants', 'name avatar status lastSeen about phone email settings contacts')
+            .populate('admins', 'name avatar about settings contacts')
+            .populate('superAdmin', 'name avatar about settings contacts')
+            .populate({
+                path: 'pinnedMessages.message',
+                populate: { path: 'sender', select: 'name avatar about settings contacts' }
+            })
+            .populate('pinnedMessages.pinnedBy', 'name avatar about settings contacts');
+
+        if (!room) {
+            throw new NotFoundException('Room not found');
+        }
+
+        if (!room.participants.some(id => id['_id'] ? id['_id'].toString() === userId : id.toString() === userId)) {
+            throw new ForbiddenException('You are not a participant in this room');
+        }
+
+        // Sanitize users in the room
+        room.participants = room.participants.map(p => this.usersService.sanitizeUserProfile(p, userId)) as any;
+        room.admins = room.admins.map(a => this.usersService.sanitizeUserProfile(a, userId)) as any;
+        if (room.superAdmin) {
+            room.superAdmin = this.usersService.sanitizeUserProfile(room.superAdmin, userId);
+        }
+        room.pinnedMessages.forEach(pm => {
+            pm.pinnedBy = this.usersService.sanitizeUserProfile(pm.pinnedBy, userId);
+            if (pm.message && pm.message['sender']) {
+                pm.message['sender'] = this.usersService.sanitizeUserProfile(pm.message['sender'], userId);
+            }
+        });
+
+        // Filter and cleanup expired messages
+        const now = new Date();
+        const activePins = room.pinnedMessages.filter(pm => !pm.expiresAt || pm.expiresAt > now);
+
+        if (activePins.length !== room.pinnedMessages.length) {
+            // Clean up in background if needed, but for now just return filtered
+            room.pinnedMessages = activePins;
+            await this.roomModel.updateOne(
+                { _id: roomId },
+                { $set: { pinnedMessages: activePins.map(pm => ({ ...pm, message: pm.message['_id'] || pm.message, pinnedBy: pm.pinnedBy['_id'] || pm.pinnedBy })) } }
+            );
+        }
+
         return room;
+    }
+
+    async pinMessage(roomId: string, messageId: string, userId: string, durationSeconds?: number) {
+        const room = await this.roomModel.findById(roomId);
+        if (!room) throw new NotFoundException('Room not found');
+
+        if (!room.participants.some(id => id.toString() === userId)) {
+            throw new ForbiddenException('You are not a participant in this room');
+        }
+
+        if (room.type === 'group') {
+            const isAdmin = room.admins.some(id => id.toString() === userId) || room.superAdmin.toString() === userId;
+            if (!isAdmin) {
+                throw new ForbiddenException('Only admins can pin messages in this group');
+            }
+        }
+
+        const message = await this.messageModel.findById(messageId);
+        if (!message || message.room.toString() !== roomId) {
+            throw new BadRequestException('Message does not belong to this room');
+        }
+
+        if (room.pinnedMessages.some(pm => pm.message.toString() === messageId)) {
+            throw new BadRequestException('Message is already pinned');
+        }
+
+        const expiresAt = durationSeconds ? new Date(Date.now() + durationSeconds * 1000) : null;
+
+        room.pinnedMessages.push({
+            message: new Types.ObjectId(messageId),
+            pinnedBy: new Types.ObjectId(userId),
+            expiresAt,
+        } as any);
+
+        return room.save();
+    }
+
+    async unpinMessage(roomId: string, messageId: string, userId: string) {
+        const room = await this.roomModel.findById(roomId);
+        if (!room) throw new NotFoundException('Room not found');
+
+        if (!room.participants.some(id => id.toString() === userId)) {
+            throw new ForbiddenException('You are not a participant in this room');
+        }
+
+        if (room.type === 'group') {
+            const isAdmin = room.admins.some(id => id.toString() === userId) || room.superAdmin.toString() === userId;
+            if (!isAdmin) {
+                throw new ForbiddenException('Only admins can unpin messages in this group');
+            }
+        }
+
+        room.pinnedMessages = room.pinnedMessages.filter(pm => pm.message.toString() !== messageId) as any;
+
+        return room.save();
     }
 
     async changeSuperAdmin(roomId: string, newSuperAdminId: string, currentUserId: string) {
@@ -100,7 +225,6 @@ export class RoomsService {
             throw new BadRequestException('New Super Admin must be a participant of the room');
         }
 
-        // Update super admin and ensure they are also in admins list
         room.superAdmin = new Types.ObjectId(newSuperAdminId);
         if (!room.admins.some(id => id.toString() === newSuperAdminId)) {
             room.admins.push(new Types.ObjectId(newSuperAdminId));
@@ -134,7 +258,6 @@ export class RoomsService {
             throw new ForbiddenException('You are not a participant in this room');
         }
 
-        // Determine folder based on file mimetype
         let folderType = 'others';
         if (file.mimetype.startsWith('image/')) folderType = 'images';
         else if (file.mimetype.startsWith('video/')) folderType = 'videos';

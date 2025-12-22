@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, Req, UseGuards, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, Req, UseGuards, UseInterceptors, UploadedFile, BadRequestException, Delete } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
@@ -52,5 +52,29 @@ export class RoomsController {
     ) {
         if (!file) throw new BadRequestException('File is required');
         return this.roomsService.uploadFile(id, req.user._id, file);
+    }
+
+    @Patch(':id/pin')
+    async togglePin(@Param('id') id: string, @Req() req) {
+        return this.roomsService.togglePin(id, req.user._id);
+    }
+
+    @Post(':id/messages/:messageId/pin')
+    async pinMessage(
+        @Param('id') id: string,
+        @Param('messageId') messageId: string,
+        @Body('durationSeconds') durationSeconds: number,
+        @Req() req,
+    ) {
+        return this.roomsService.pinMessage(id, messageId, req.user._id, durationSeconds);
+    }
+
+    @Delete(':id/messages/:messageId/pin')
+    async unpinMessage(
+        @Param('id') id: string,
+        @Param('messageId') messageId: string,
+        @Req() req,
+    ) {
+        return this.roomsService.unpinMessage(id, messageId, req.user._id);
     }
 }

@@ -9,9 +9,9 @@ const ChatsViewSection = () => {
     >
       <ChatsHeader />
       <SearchInput />
-      <div className="grid justify-stretch items-center overflow-y-auto h-full px-4">
+      <div className="grid justify-stretch items-center overflow-y-auto h-full px-4 gap-1">
         {Array.from({ length: 20 }).map((_, i) => (
-          <RoomCard key={i} />
+          <RoomCard index={i} key={i} />
         ))}
       </div>
     </section>

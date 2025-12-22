@@ -46,13 +46,23 @@ export class User {
             theme: { type: String, default: 'light' },
             chatWallpaper: { type: String, default: null },
             enterIsSend: { type: Boolean, default: true },
+            avatarPrivacy: { type: String, enum: ['everyone', 'contacts', 'nobody'], default: 'everyone' },
+            aboutPrivacy: { type: String, enum: ['everyone', 'contacts', 'nobody'], default: 'everyone' },
         },
-        default: () => ({ theme: 'light', chatWallpaper: null, enterIsSend: true }),
+        default: () => ({
+            theme: 'light',
+            chatWallpaper: null,
+            enterIsSend: true,
+            avatarPrivacy: 'everyone',
+            aboutPrivacy: 'everyone'
+        }),
     })
     settings: {
         theme: string;
         chatWallpaper: string;
         enterIsSend: boolean;
+        avatarPrivacy: 'everyone' | 'contacts' | 'nobody';
+        aboutPrivacy: 'everyone' | 'contacts' | 'nobody';
     };
 
     @Prop()

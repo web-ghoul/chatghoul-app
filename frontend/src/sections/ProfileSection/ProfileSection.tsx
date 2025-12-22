@@ -1,6 +1,9 @@
+import ProfileAbout from "../../components/ProfileAbout/ProfileAbout";
 import ProfileAvatar from "../../components/ProfileAvatar/ProfileAvatar";
 import ProfileHeader from "../../components/ProfileHeader/ProfileHeader";
-import UserIcon from "../../icons/UserIcon";
+import ProfileName from "../../components/ProfileName/ProfileName";
+import ProfilePhone from "../../components/ProfilePhone/ProfilePhone";
+import ProfileTitleSection from "./ProfileTitleSection";
 
 const ProfileSection = () => {
   return (
@@ -11,16 +14,14 @@ const ProfileSection = () => {
         className={`grid justify-stretch items-start content-start gap-4 border-x-2 border-x-secondary h-screen py-2`}
       >
         <ProfileHeader />
-        <div className="grid justify-stretch items-center gap-4 h-full overflow-y-auto">
+        <div className="grid justify-stretch items-center gap-8 h-full overflow-y-auto py-3">
           <ProfileAvatar />
+          <ProfileName />
+          <ProfileAbout />
+          <ProfilePhone />
         </div>
       </div>
-      <div className="grid justify-center items-center content-center gap-4 h-full">
-        <div className="bg-secondary w-20 h-20 p-4 rounded-full flex justify-center items-center">
-          <UserIcon className="text-gray-600 w-full h-auto" />
-        </div>
-        <h1 className="text-3xl text-white font-medium text-center">Profile</h1>
-      </div>
+      <ProfileTitleSection />
     </section>
   );
 };

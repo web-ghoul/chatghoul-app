@@ -1,7 +1,16 @@
-const RoomCard = () => {
+import { useChatsStore } from "../../globals/useChatsStore";
+import Menu from "./Menu";
+
+const RoomCard = ({ index }: { index: number }) => {
+  const room = useChatsStore((state) => state.room);
+  const setRoom = useChatsStore((state) => state.setRoom);
+
   return (
     <article
-      className={`grid justify-stretch items-center gap-3 transition-all hover:bg-secondary rounded-lg p-4 grid-cols-[auto_1fr] hover:cursor-pointer`}
+      onClick={() => setRoom(`${index}`)}
+      className={`grid justify-stretch items-center gap-3 transition-all hover:bg-secondary rounded-xl p-4 group grid-cols-[auto_1fr] hover:cursor-pointer ${
+        room == `${index}` ? "bg-secondary" : ""
+      }`}
     >
       <div
         className="bg-cover bg-center bg-no-repeat w-13 h-13 rounded-full"
@@ -14,9 +23,15 @@ const RoomCard = () => {
           <h6 className="text-md line-clamp-1 text-white font-normal">
             Mahmoud Salama adasdasda adadasd
           </h6>
-          <p className="bg-primary py-0.5 px-1 font-medium text-white rounded-full text-sm">12</p>
+          <h6 className="text-sm text-txt font-normal">12/12/2025</h6>
         </div>
-        <p className="text-sm text-txt line-clamp-1">عامل ايه</p>
+        <div className="flex justify-between items-center gap-1 relative overflow-hidden transition-all group-hover:pr-9">
+          <p className="text-sm text-txt line-clamp-1">عامل ايه</p>
+          <p className="bg-primary py-0.5 px-2 font-bold text-background rounded-full text-sm">
+            9
+          </p>
+          <Menu />
+        </div>
       </div>
     </article>
   );

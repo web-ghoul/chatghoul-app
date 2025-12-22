@@ -29,10 +29,41 @@ export class UsersService {
                     { isBlocked: false },
                 ],
             })
-            .select('name email phone avatar about status lastSeen')
+            .select('name email phone avatar about status lastSeen settings contacts')
             .limit(20);
 
-        return users;
+        return users.map(user => this.sanitizeUserProfile(user, currentUserId));
+    }
+
+    public sanitizeUserProfile(user: any, requesterId: string): any {
+        if (!user) return user;
+
+        const userObj = user.toObject ? user.toObject() : user;
+        const targetId = userObj._id.toString();
+
+        // Don't sanitize if it's the user's own profile
+        if (targetId === requesterId) return userObj;
+
+        const settings = userObj.settings || {};
+        const isContact = userObj.contacts?.some(id => id.toString() === requesterId);
+
+        // Sanitize Avatar
+        if (settings.avatarPrivacy === 'nobody' || (settings.avatarPrivacy === 'contacts' && !isContact)) {
+            userObj.avatar = null;
+        }
+
+        // Sanitize About
+        if (settings.aboutPrivacy === 'nobody' || (settings.aboutPrivacy === 'contacts' && !isContact)) {
+            userObj.about = null;
+        }
+
+        // Remove sensitive fields that shouldn't be leaked during sanitization but might be in the object
+        delete userObj.settings;
+        delete userObj.contacts;
+        delete userObj.blockedUsers;
+        delete userObj.password;
+
+        return userObj;
     }
 
     async getUserMedia(userId: string, type?: string) {

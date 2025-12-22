@@ -1,15 +1,32 @@
 import { create } from "zustand";
 
+type TabTypes = "chats" | "settings" | "profile";
+
 export type AppState = {
-  tab: "chats"|"settings"|"media"|"profile";
+  tab: TabTypes;
+  tabsStack: TabTypes[];
 };
 
 type AppActions = {
-  setTab: (payload: "chats"|"settings"|"media"|"profile") => void;
+  setTab: (payload: TabTypes) => void;
+  setTabsStackBack: () => void;
 };
 
 export const useAppStore = create<AppState & AppActions>((set) => ({
-  tab: 'chats',
+  tab: "chats",
+  tabsStack: ["chats"],
 
-  setTab: (payload) => set({ tab: payload }),
+  setTab: (payload) => {
+    return set((state) => {
+      return { tab: payload, tabsStack: [payload, ...state.tabsStack] };
+    });
+  },
+  setTabsStackBack: () => {
+    return set((state) => {
+      return {
+        tab: state.tabsStack[1],
+        tabsStack: state.tabsStack.slice(1),
+      };
+    });
+  },
 }));
