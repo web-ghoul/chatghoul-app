@@ -77,4 +77,9 @@ export class RoomsController {
     ) {
         return this.roomsService.unpinMessage(id, messageId, req.user._id);
     }
+
+    @Delete(':id')
+    async deleteRoom(@Param('id') id: string, @Req() req) {
+        return this.roomsService.deleteRoom(id, req.user._id);
+    }
 }

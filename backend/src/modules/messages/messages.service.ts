@@ -24,12 +24,12 @@ export class MessagesService {
             throw new NotFoundException('Room not found');
         }
 
-        if (!room.participants.some((id) => id.toString() === senderId)) {
+        if (!room.participants.some((id) => String(id) === String(senderId))) {
             throw new ForbiddenException('You are not a participant in this room');
         }
 
         if (room.type === 'group' && room.permissions?.sendMessages === 'admins') {
-            const isAdmin = room.admins.some(id => id.toString() === senderId) || room.superAdmin.toString() === senderId;
+            const isAdmin = room.admins.some(id => String(id) === String(senderId)) || String(room.superAdmin) === String(senderId);
             if (!isAdmin) {
                 throw new ForbiddenException('Only admins can send messages in this group');
             }
@@ -57,12 +57,12 @@ export class MessagesService {
         await this.roomModel.findByIdAndUpdate(roomId, {
             lastMessage: newMessage._id,
             updatedAt: new Date(),
-            $inc: { [`unreadCounts.${senderId}`]: 0 },
+            $inc: { [`unreadCounts.${String(senderId)}`]: 0 },
         });
         room.participants.forEach(pId => {
-            if (pId.toString() !== senderId) {
-                const current = room.unreadCounts.get(pId.toString()) || 0;
-                room.unreadCounts.set(pId.toString(), current + 1);
+            if (String(pId) !== String(senderId)) {
+                const current = room.unreadCounts.get(String(pId)) || 0;
+                room.unreadCounts.set(String(pId), current + 1);
             }
         });
         room.markModified('unreadCounts');
@@ -73,7 +73,7 @@ export class MessagesService {
 
         // Emit to each participant individually to respect privacy settings
         room.participants.forEach(pId => {
-            const pIdStr = pId.toString();
+            const pIdStr = String(pId);
             const sanitizedMsg = {
                 ...populatedMessage.toObject(),
                 sender: this.usersService.sanitizeUserProfile(populatedMessage.sender, pIdStr)
@@ -89,7 +89,7 @@ export class MessagesService {
         if (!room) {
             throw new NotFoundException('Room not found');
         }
-        if (!room.participants.some(id => id.toString() === userId)) {
+        if (!room.participants.some(id => String(id) === String(userId))) {
             throw new ForbiddenException('Access denied');
         }
 
@@ -146,5 +146,72 @@ export class MessagesService {
         });
 
         return messages;
+    }
+
+    async markMessagesAsRead(roomId: string, userId: string) {
+        const room = await this.roomModel.findById(roomId);
+        if (!room) {
+            throw new NotFoundException('Room not found');
+        }
+
+        if (!room.participants.some(id => String(id) === String(userId))) {
+            throw new ForbiddenException('You are not a participant in this room');
+        }
+
+        const userIdObj = new Types.ObjectId(userId);
+
+        // Update readBy for all messages in this room not sent by this user
+        const updateResult = await this.messageModel.updateMany(
+            {
+                room: new Types.ObjectId(roomId),
+                sender: { $ne: userIdObj },
+                readBy: { $ne: userIdObj }
+            },
+            { $addToSet: { readBy: userIdObj } }
+        );
+
+        // Check if unread count is already 0 to avoid redundant updates
+        const currentUnreadCount = room.unreadCounts?.get(userId) || 0;
+
+        if (updateResult.modifiedCount > 0 || currentUnreadCount > 0) {
+            // Reset unread count for this user in the room
+            await this.roomModel.findByIdAndUpdate(roomId, {
+                $set: { [`unreadCounts.${userId}`]: 0 }
+            });
+
+            // Broadcast to other participants that messages have been read
+            this.chatGateway.emitToRoom(roomId, 'messages_read', {
+                roomId,
+                userId,
+                readAt: new Date()
+            });
+        }
+
+        return { success: true, modifiedCount: updateResult.modifiedCount };
+    }
+
+    async markMessagesAsDelivered(roomId: string, userId: string) {
+        const userIdObj = new Types.ObjectId(userId);
+
+        // Update deliveredTo for all messages in this room not sent by this user
+        const updateResult = await this.messageModel.updateMany(
+            {
+                room: new Types.ObjectId(roomId),
+                sender: { $ne: userIdObj },
+                deliveredTo: { $ne: userIdObj }
+            },
+            { $addToSet: { deliveredTo: userIdObj } }
+        );
+
+        if (updateResult.modifiedCount > 0) {
+            // Broadcast to other participants that messages have been delivered
+            this.chatGateway.emitToRoom(roomId, 'messages_delivered', {
+                roomId,
+                userId,
+                deliveredAt: new Date()
+            });
+        }
+
+        return { success: true, modifiedCount: updateResult.modifiedCount };
     }
 }

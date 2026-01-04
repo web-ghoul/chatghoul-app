@@ -4,6 +4,33 @@ import { Readable } from 'stream';
 
 @Injectable()
 export class CloudinaryService {
+    /**
+     * Build folder path for user-specific uploads
+     * Structure: chatghoul/users/{userId}/{subfolder}
+     */
+    getUserFolder(userId: string, subfolder: string = 'avatars'): string {
+        return `chatghoul/users/${userId}/${subfolder}`;
+    }
+
+    /**
+     * Build folder path for room-specific uploads
+     * Structure: chatghoul/rooms/{roomId}/{type}
+     * Types: images, videos, audios, files
+     */
+    getRoomFolder(roomId: string, type: string = 'images'): string {
+        return `chatghoul/rooms/${roomId}/${type}`;
+    }
+
+    /**
+     * Get folder type from mimetype
+     */
+    getFolderTypeFromMimetype(mimetype: string): string {
+        if (mimetype.startsWith('image/')) return 'images';
+        if (mimetype.startsWith('video/')) return 'videos';
+        if (mimetype.startsWith('audio/')) return 'audios';
+        return 'files';
+    }
+
     async uploadImage(file: Express.Multer.File, folder: string = 'chatghoul'): Promise<string> {
         return new Promise((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(

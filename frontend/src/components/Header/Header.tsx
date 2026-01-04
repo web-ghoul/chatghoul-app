@@ -25,7 +25,7 @@ const Header = () => {
             <ChatIcon />
           </Icon>
         </TooltipTrigger>
-        <TooltipContent>Chats</TooltipContent>
+        <TooltipContent side="right">Chats</TooltipContent>
       </Tooltip>
       <div className={`grid justify-center items-center gap-2`}>
         <MediaDialog />
@@ -38,7 +38,7 @@ const Header = () => {
               <SettingsIcon />
             </Icon>
           </TooltipTrigger>
-          <TooltipContent>Settings</TooltipContent>
+          <TooltipContent side="right">Settings</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger>
@@ -46,7 +46,7 @@ const Header = () => {
               <UserIcon className={`rounded-full`} />
             </Icon>
           </TooltipTrigger>
-          <TooltipContent>Profile</TooltipContent>
+          <TooltipContent side="right">Profile</TooltipContent>
         </Tooltip>
       </div>
     </header>

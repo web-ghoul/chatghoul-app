@@ -4,14 +4,16 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { User, UserSchema } from '../../schemas/user.schema';
 
-import { Media, MediaSchema } from '../../schemas/media.schema'; // Add this import
+import { Media, MediaSchema } from '../../schemas/media.schema';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 
 @Module({
     imports: [
         MongooseModule.forFeature([
             { name: User.name, schema: UserSchema },
-            { name: Media.name, schema: MediaSchema }, // Register Media
+            { name: Media.name, schema: MediaSchema },
         ]),
+        CloudinaryModule,
     ],
     controllers: [UsersController],
     providers: [UsersService],

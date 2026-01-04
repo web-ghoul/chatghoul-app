@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { useChatsStore } from "../../globals/useChatsStore";
 import AddUsersIcon from "../../icons/AddUsersIcon";
 import LogoutIcon from "../../icons/LogoutIcon";
 import MenuIcon from "../../icons/MenuIcon";
 import StarIcon from "../../icons/StarIcon";
 import Icon from "../Icon/Icon";
+import LogoutModal from "../../modals/LogoutModal";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +16,7 @@ import {
 
 const Menu = () => {
   const setChatTab = useChatsStore((state) => state.setChatTab);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   return (
     <DropdownMenu>
@@ -27,16 +30,23 @@ const Menu = () => {
           <AddUsersIcon />
           New group
         </DropdownMenuItem>
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setChatTab("starred_messages")}>
           <StarIcon />
           Starred messages
         </DropdownMenuItem>
         <DropdownMenuSeparator className="bg-gray-500/30" />
-        <DropdownMenuItem className="hover:bg-red-400/15 hover:text-red-400 group">
+        <DropdownMenuItem
+          onClick={() => setIsLogoutModalOpen(true)}
+          className="hover:bg-red-400/15 hover:text-red-400 group"
+        >
           <LogoutIcon className="transition-all group-hover:text-red-400" />
           Logout
         </DropdownMenuItem>
       </DropdownMenuContent>
+      <LogoutModal
+        open={isLogoutModalOpen}
+        onOpenChange={setIsLogoutModalOpen}
+      />
     </DropdownMenu>
   );
 };

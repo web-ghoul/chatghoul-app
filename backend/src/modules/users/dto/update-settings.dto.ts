@@ -20,4 +20,20 @@ export class UpdateSettingsDto {
     @IsString()
     @IsOptional()
     aboutPrivacy?: 'everyone' | 'contacts' | 'nobody';
+
+    @IsBoolean()
+    @IsOptional()
+    messageNotifications?: boolean;
+
+    @IsBoolean()
+    @IsOptional()
+    showPreviews?: boolean;
+
+    @IsBoolean()
+    @IsOptional()
+    reactionNotifications?: boolean;
+
+    @IsBoolean()
+    @IsOptional()
+    sounds?: boolean;
 }

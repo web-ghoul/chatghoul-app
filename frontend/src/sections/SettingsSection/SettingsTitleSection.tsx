@@ -1,12 +1,10 @@
-import SettingsIcon from "../../icons/SettingsIcon";
+import settingsImage from "../../assets/images/settings.png"
 
 const SettingsTitleSection = () => {
   return (
-    <div className="grid justify-center items-center content-center gap-4 h-full">
-      <div className="bg-secondary w-20 h-20 p-4 rounded-full flex justify-center items-center m-auto">
-        <SettingsIcon className="text-gray-600 w-full h-auto" />
-      </div>
-      <h1 className="text-3xl text-white font-medium text-center">Settings</h1>
+    <div className="grid justify-center items-center gap-4">
+      <img src={settingsImage} alt="settings" className="m-auto w-30 h-auto" />
+      <h5 className="font-medium text-white text-center text-2xl">Settings</h5>
     </div>
   );
 };

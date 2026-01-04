@@ -22,7 +22,7 @@ export class RoomsService {
         const { type, participants } = createRoomDto;
 
         // Ensure creator is in participants
-        const uniqueParticipants = Array.from(new Set([...participants, creatorId]));
+        const uniqueParticipants = Array.from(new Set([...participants, String(creatorId)]));
 
         if (type === 'private') {
             if (uniqueParticipants.length !== 2) {
@@ -36,7 +36,7 @@ export class RoomsService {
             });
 
             if (existingRoom) {
-                return existingRoom;
+                return this.getRoomById(existingRoom._id.toString(), creatorId);
             }
 
             const newRoom = new this.roomModel({
@@ -45,7 +45,8 @@ export class RoomsService {
                 createdBy: creatorId,
             });
 
-            return newRoom.save();
+            const savedRoom = await newRoom.save();
+            return this.getRoomById(savedRoom._id.toString(), creatorId);
         } else {
             // Group Chat
             const newRoom = new this.roomModel({
@@ -56,25 +57,37 @@ export class RoomsService {
                 admins: [creatorId], // Creator is strictly an admin initially
             });
 
-            return newRoom.save();
+            const savedRoom = await newRoom.save();
+            return this.getRoomById(savedRoom._id.toString(), creatorId);
         }
     }
 
     async getUserRooms(userId: string) {
         const rooms = await this.roomModel
             .find({ participants: userId })
-            .populate('participants', 'name avatar status about settings contacts')
+            .populate('participants', 'name avatar status lastSeen about phone email settings contacts')
+            .populate('admins', 'name avatar about settings contacts')
+            .populate('superAdmin', 'name avatar about settings contacts')
             .populate('lastMessage')
             .sort({ updatedAt: -1 })
             .exec();
 
-        rooms.forEach(room => {
-            room.participants = room.participants.map(p => this.usersService.sanitizeUserProfile(p, userId)) as any;
+        const sanitizedRooms = rooms.map(room => {
+            const roomObj = room.toObject ? room.toObject() : room;
+
+            // Sanitize users in the room
+            roomObj.participants = roomObj.participants.map(p => this.usersService.sanitizeUserProfile(p, userId));
+            roomObj.admins = roomObj.admins.map(a => this.usersService.sanitizeUserProfile(a, userId));
+            if (roomObj.superAdmin) {
+                roomObj.superAdmin = this.usersService.sanitizeUserProfile(roomObj.superAdmin, userId);
+            }
+
+            return roomObj;
         });
 
-        return rooms.sort((a, b) => {
-            const aPinned = a.pinnedBy.some(id => id.toString() === userId);
-            const bPinned = b.pinnedBy.some(id => id.toString() === userId);
+        return sanitizedRooms.sort((a, b) => {
+            const aPinned = a.pinnedBy.some(id => String(id) === String(userId));
+            const bPinned = b.pinnedBy.some(id => String(id) === String(userId));
             if (aPinned && !bPinned) return -1;
             if (!aPinned && bPinned) return 1;
             return 0;
@@ -87,7 +100,7 @@ export class RoomsService {
             throw new NotFoundException('Room not found');
         }
 
-        if (!room.participants.some(id => id.toString() === userId)) {
+        if (!room.participants.some(id => String(id) === String(userId))) {
             throw new ForbiddenException('You are not a participant in this room');
         }
 
@@ -119,7 +132,10 @@ export class RoomsService {
             throw new NotFoundException('Room not found');
         }
 
-        if (!room.participants.some(id => id['_id'] ? id['_id'].toString() === userId : id.toString() === userId)) {
+        if (!room.participants.some(p => {
+            const pId = p['_id'] ? p['_id'].toString() : p.toString();
+            return pId === String(userId);
+        })) {
             throw new ForbiddenException('You are not a participant in this room');
         }
 
@@ -156,12 +172,12 @@ export class RoomsService {
         const room = await this.roomModel.findById(roomId);
         if (!room) throw new NotFoundException('Room not found');
 
-        if (!room.participants.some(id => id.toString() === userId)) {
+        if (!room.participants.some(id => String(id) === String(userId))) {
             throw new ForbiddenException('You are not a participant in this room');
         }
 
         if (room.type === 'group') {
-            const isAdmin = room.admins.some(id => id.toString() === userId) || room.superAdmin.toString() === userId;
+            const isAdmin = room.admins.some(id => String(id) === String(userId)) || String(room.superAdmin) === String(userId);
             if (!isAdmin) {
                 throw new ForbiddenException('Only admins can pin messages in this group');
             }
@@ -184,19 +200,20 @@ export class RoomsService {
             expiresAt,
         } as any);
 
-        return room.save();
+        await room.save();
+        return this.getRoomById(roomId, userId);
     }
 
     async unpinMessage(roomId: string, messageId: string, userId: string) {
         const room = await this.roomModel.findById(roomId);
         if (!room) throw new NotFoundException('Room not found');
 
-        if (!room.participants.some(id => id.toString() === userId)) {
+        if (!room.participants.some(id => String(id) === String(userId))) {
             throw new ForbiddenException('You are not a participant in this room');
         }
 
         if (room.type === 'group') {
-            const isAdmin = room.admins.some(id => id.toString() === userId) || room.superAdmin.toString() === userId;
+            const isAdmin = room.admins.some(id => String(id) === String(userId)) || String(room.superAdmin) === String(userId);
             if (!isAdmin) {
                 throw new ForbiddenException('Only admins can unpin messages in this group');
             }
@@ -204,7 +221,8 @@ export class RoomsService {
 
         room.pinnedMessages = room.pinnedMessages.filter(pm => pm.message.toString() !== messageId) as any;
 
-        return room.save();
+        await room.save();
+        return this.getRoomById(roomId, userId);
     }
 
     async changeSuperAdmin(roomId: string, newSuperAdminId: string, currentUserId: string) {
@@ -217,20 +235,21 @@ export class RoomsService {
             throw new BadRequestException('Cannot change admin of a private chat');
         }
 
-        if (room.superAdmin.toString() !== currentUserId) {
+        if (String(room.superAdmin) !== String(currentUserId)) {
             throw new ForbiddenException('Only the Super Admin can transfer ownership');
         }
 
-        if (!room.participants.some(id => id.toString() === newSuperAdminId)) {
+        if (!room.participants.some(id => String(id) === String(newSuperAdminId))) {
             throw new BadRequestException('New Super Admin must be a participant of the room');
         }
 
         room.superAdmin = new Types.ObjectId(newSuperAdminId);
-        if (!room.admins.some(id => id.toString() === newSuperAdminId)) {
+        if (!room.admins.some(id => String(id) === String(newSuperAdminId))) {
             room.admins.push(new Types.ObjectId(newSuperAdminId));
         }
 
-        return room.save();
+        await room.save();
+        return this.getRoomById(roomId, currentUserId);
     }
 
     async getRoomMedia(roomId: string, userId: string, type?: string) {
@@ -238,7 +257,7 @@ export class RoomsService {
         if (!room) {
             throw new NotFoundException('Room not found');
         }
-        if (!room.participants.some(id => id.toString() === userId)) {
+        if (!room.participants.some(id => String(id) === String(userId))) {
             throw new ForbiddenException('You are not a participant in this room');
         }
 
@@ -254,16 +273,12 @@ export class RoomsService {
         if (!room) {
             throw new NotFoundException('Room not found');
         }
-        if (!room.participants.some(id => id.toString() === userId)) {
+        if (!room.participants.some(id => String(id) === String(userId))) {
             throw new ForbiddenException('You are not a participant in this room');
         }
 
-        let folderType = 'others';
-        if (file.mimetype.startsWith('image/')) folderType = 'images';
-        else if (file.mimetype.startsWith('video/')) folderType = 'videos';
-        else if (file.mimetype.startsWith('audio/')) folderType = 'audios';
-
-        const folder = `chatghoul/rooms/${roomId}/${folderType}`;
+        const folderType = this.cloudinaryService.getFolderTypeFromMimetype(file.mimetype);
+        const folder = this.cloudinaryService.getRoomFolder(roomId, folderType);
 
         const url = await this.cloudinaryService.uploadImage(file, folder);
 
@@ -272,7 +287,50 @@ export class RoomsService {
             fileName: file.originalname,
             size: file.size,
             mimetype: file.mimetype,
-            type: folderType === 'others' ? 'file' : (folderType === 'images' ? 'image' : (folderType === 'videos' ? 'video' : 'audio'))
+            type: folderType === 'files' ? 'file' : (folderType === 'images' ? 'image' : (folderType === 'videos' ? 'video' : 'audio'))
         };
+    }
+
+    async deleteRoom(roomId: string, userId: string) {
+        const room = await this.roomModel.findById(roomId);
+        if (!room) {
+            throw new NotFoundException('Room not found');
+        }
+
+        if (!room.participants.some(id => String(id) === String(userId))) {
+            throw new ForbiddenException('You are not a participant in this room');
+        }
+
+        if (room.type === 'private') {
+            // Delete private chat entirely
+            await this.roomModel.findByIdAndDelete(roomId);
+            // Optionally delete messages too
+            await this.messageModel.deleteMany({ room: roomId });
+            return { message: 'Chat deleted' };
+        } else {
+            // Group chat - just remove user from participants
+            // If user is super admin, they must transfer ownership first or we just delete?
+            // Usually "Delete chat" in WhatsApp for a group only works AFTER you "Exit group".
+            // If they are still a participant, this is "Exit group".
+
+            if (String(room.superAdmin) === String(userId)) {
+                // If it's a group and they are the only participant, delete it
+                if (room.participants.length === 1) {
+                    await this.roomModel.findByIdAndDelete(roomId);
+                    await this.messageModel.deleteMany({ room: roomId });
+                    return { message: 'Group deleted' };
+                }
+                throw new BadRequestException('You are the Super Admin. Transfer ownership before exiting.');
+            }
+
+            await this.roomModel.findByIdAndUpdate(roomId, {
+                $pull: {
+                    participants: userId,
+                    admins: userId
+                }
+            });
+
+            return { message: 'Exited group' };
+        }
     }
 }

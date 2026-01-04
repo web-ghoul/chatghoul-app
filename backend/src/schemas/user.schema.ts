@@ -48,13 +48,21 @@ export class User {
             enterIsSend: { type: Boolean, default: true },
             avatarPrivacy: { type: String, enum: ['everyone', 'contacts', 'nobody'], default: 'everyone' },
             aboutPrivacy: { type: String, enum: ['everyone', 'contacts', 'nobody'], default: 'everyone' },
+            messageNotifications: { type: Boolean, default: true },
+            showPreviews: { type: Boolean, default: true },
+            reactionNotifications: { type: Boolean, default: true },
+            sounds: { type: Boolean, default: true },
         },
         default: () => ({
             theme: 'light',
             chatWallpaper: null,
             enterIsSend: true,
             avatarPrivacy: 'everyone',
-            aboutPrivacy: 'everyone'
+            aboutPrivacy: 'everyone',
+            messageNotifications: true,
+            showPreviews: true,
+            reactionNotifications: true,
+            sounds: true
         }),
     })
     settings: {
@@ -63,6 +71,10 @@ export class User {
         enterIsSend: boolean;
         avatarPrivacy: 'everyone' | 'contacts' | 'nobody';
         aboutPrivacy: 'everyone' | 'contacts' | 'nobody';
+        messageNotifications: boolean;
+        showPreviews: boolean;
+        reactionNotifications: boolean;
+        sounds: boolean;
     };
 
     @Prop()

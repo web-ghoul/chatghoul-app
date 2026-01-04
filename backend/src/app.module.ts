@@ -10,6 +10,7 @@ import { GatewaysModule } from './modules/gateways/gateways.module';
 import { MessagesModule } from './modules/messages/messages.module';
 import { RoomsModule } from './modules/rooms/rooms.module';
 import { UsersModule } from './modules/users/users.module';
+import { SeedsModule } from './modules/seeds/seeds.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { UsersModule } from './modules/users/users.module';
     RoomsModule,
     MessagesModule,
     GatewaysModule,
+    SeedsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

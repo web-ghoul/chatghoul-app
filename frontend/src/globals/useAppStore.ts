@@ -1,24 +1,30 @@
 import { create } from "zustand";
 
-type TabTypes = "chats" | "settings" | "profile";
+type TabTypes = "chats" | "settings" | "profile" | "media";
+type SettingsTabTypes = "main" | "privacy" | "chats" | "chats-theme" | "chats-wallpaper" | "notifications" | "shortcuts" | "help";
 
 export type AppState = {
   tab: TabTypes;
   tabsStack: TabTypes[];
+  settingsTab: SettingsTabTypes;
 };
 
 type AppActions = {
   setTab: (payload: TabTypes) => void;
   setTabsStackBack: () => void;
+  setSettingsTab: (payload: SettingsTabTypes) => void;
 };
 
 export const useAppStore = create<AppState & AppActions>((set) => ({
   tab: "chats",
   tabsStack: ["chats"],
+  settingsTab: "main",
 
   setTab: (payload) => {
     return set((state) => {
-      return { tab: payload, tabsStack: [payload, ...state.tabsStack] };
+      // Reset settings tab when entering settings
+      const newSettingsTab = payload === "settings" ? "main" : state.settingsTab;
+      return { tab: payload, tabsStack: [payload, ...state.tabsStack], settingsTab: newSettingsTab };
     });
   },
   setTabsStackBack: () => {
@@ -26,7 +32,13 @@ export const useAppStore = create<AppState & AppActions>((set) => ({
       return {
         tab: state.tabsStack[1],
         tabsStack: state.tabsStack.slice(1),
+        settingsTab: "main",
       };
+    });
+  },
+  setSettingsTab: (payload) => {
+    return set(() => {
+      return { settingsTab: payload };
     });
   },
 }));

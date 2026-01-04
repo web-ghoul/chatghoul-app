@@ -25,4 +25,20 @@ export class RoomMessagesController {
     ) {
         return this.messagesService.getMessages(roomId, req.user._id, page);
     }
+
+    @Post('mark-read')
+    async markRead(
+        @Param('roomId') roomId: string,
+        @Req() req,
+    ) {
+        return this.messagesService.markMessagesAsRead(roomId, req.user._id);
+    }
+
+    @Post('mark-delivered')
+    async markDelivered(
+        @Param('roomId') roomId: string,
+        @Req() req,
+    ) {
+        return this.messagesService.markMessagesAsDelivered(roomId, req.user._id);
+    }
 }

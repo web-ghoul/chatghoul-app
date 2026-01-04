@@ -2,13 +2,15 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../../schemas/user.schema';
-import { Media, MediaDocument } from '../../schemas/media.schema'; // Add this import
+import { Media, MediaDocument } from '../../schemas/media.schema';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class UsersService {
     constructor(
         @InjectModel(User.name) private userModel: Model<UserDocument>,
-        @InjectModel(Media.name) private mediaModel: Model<MediaDocument>, // Inject MediaModel
+        @InjectModel(Media.name) private mediaModel: Model<MediaDocument>,
+        private readonly cloudinaryService: CloudinaryService,
     ) { }
 
     async searchUsers(query: string, currentUserId: string) {
@@ -115,5 +117,16 @@ export class UsersService {
         return this.userModel.findByIdAndUpdate(userId, {
             $pull: { blockedUsers: targetId }
         }, { new: true });
+    }
+
+    async updateAvatar(userId: string, file: Express.Multer.File) {
+        const user = await this.userModel.findById(userId);
+        if (!user) throw new NotFoundException('User not found');
+
+        const folder = this.cloudinaryService.getUserFolder(userId, 'avatars');
+        const avatarUrl = await this.cloudinaryService.uploadImage(file, folder);
+
+        user.avatar = avatarUrl;
+        return user.save();
     }
 }

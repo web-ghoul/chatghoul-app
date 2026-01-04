@@ -7,15 +7,18 @@ import { Room, RoomSchema } from '../../schemas/room.schema';
 import { Media, MediaSchema } from '../../schemas/media.schema'; // Add this import
 import { CloudinaryModule } from '../cloudinary/cloudinary.module'; // Add this import
 import { UsersModule } from '../users/users.module';
+import { MessagesModule } from '../messages/messages.module';
+import { Message, MessageSchema } from 'src/schemas/message.schema';
 
 @Module({
     imports: [
         MongooseModule.forFeature([
             { name: Room.name, schema: RoomSchema },
-            { name: Media.name, schema: MediaSchema }, // Register Media
+            { name: Media.name, schema: MediaSchema },
+            { name: Message.name, schema: MessageSchema },
         ]),
         CloudinaryModule,
-        UsersModule,
+        UsersModule
     ],
     controllers: [RoomsController],
     providers: [RoomsService],

@@ -5,7 +5,10 @@ import NewChatViewSection from "./NewChatViewSection";
 import RoomInfoSection from "./RoomInfoSection";
 import RoomMediaSection from "./RoomMediaSection";
 import RoomPermissionsSection from "./RoomPermissionsSection";
+import RoomSearchSection from "./RoomSearchSection";
 import RoomSection from "./RoomSection";
+import StarredMessagesSection from "./StarredMessagesSection";
+import NewGroupSection from "./NewGroupSection";
 
 const ChatsSection = () => {
   const room = useChatsStore((state) => state.room);
@@ -18,10 +21,13 @@ const ChatsSection = () => {
     >
       {chatTab === "chats" ? <ChatsViewSection /> : <></>}
       {chatTab === "new_chat" ? <NewChatViewSection /> : <></>}
+      {chatTab === "new_group" ? <NewGroupSection /> : <></>}
+      {chatTab === "starred_messages" ? <StarredMessagesSection /> : <></>}
       {room ? <RoomSection /> : <WelcomeView />}
       {roomTab === "info" ? <RoomInfoSection /> : <></>}
       {roomTab === "media" ? <RoomMediaSection /> : <></>}
       {roomTab === "permissions" ? <RoomPermissionsSection /> : <></>}
+      {roomTab === "search" ? <RoomSearchSection /> : <></>}
     </section>
   );
 };
