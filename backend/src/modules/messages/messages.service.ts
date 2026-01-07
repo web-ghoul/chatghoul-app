@@ -214,4 +214,56 @@ export class MessagesService {
 
         return { success: true, modifiedCount: updateResult.modifiedCount };
     }
+
+    async deleteMessage(messageId: string, userId: string) {
+        const message = await this.messageModel.findById(messageId);
+        if (!message) throw new NotFoundException('Message not found');
+
+        const room = await this.roomModel.findById(message.room);
+        if (!room) throw new NotFoundException('Room not found');
+
+        // Permissions: sender can delete, OR group admin can delete
+        const isSender = String(message.sender) === String(userId);
+        let isAdmin = false;
+
+        if (room.type === 'group') {
+            isAdmin = room.admins.some(id => String(id) === String(userId)) || String(room.superAdmin) === String(userId);
+        }
+
+        if (!isSender && !isAdmin) {
+            throw new ForbiddenException('You do not have permission to delete this message');
+        }
+
+        await this.messageModel.findByIdAndDelete(messageId);
+
+        // If it was media, delete from media collection
+        if (message.type !== 'text') {
+            await this.mediaModel.deleteOne({ message: message._id });
+        }
+
+        // If it was the last message, update room
+        if (room.lastMessage && String(room.lastMessage) === String(messageId)) {
+            const newLastMessage = await this.messageModel
+                .findOne({ room: room._id })
+                .sort({ createdAt: -1 });
+
+            await this.roomModel.findByIdAndUpdate(room._id, {
+                lastMessage: newLastMessage ? newLastMessage._id : null
+            });
+        }
+
+        // If it was pinned, remove from pinnedMessages
+        if (room.pinnedMessages.some(pm => String(pm.message) === String(messageId))) {
+            await this.roomModel.findByIdAndUpdate(room._id, {
+                $pull: { pinnedMessages: { message: messageId } }
+            });
+        }
+
+        this.chatGateway.emitToRoom(String(room._id), 'message_deleted', {
+            messageId,
+            roomId: String(room._id)
+        });
+
+        return { success: true };
+    }
 }

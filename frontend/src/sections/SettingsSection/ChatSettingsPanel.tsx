@@ -103,13 +103,6 @@ const ChatSettingsPanel = () => {
                     />
                 </div>
 
-                {/* Font size */}
-                <div className="grid grid-cols-[1fr_auto] items-center gap-4">
-                    <div className="grid gap-1">
-                        <p className="text-white text-base font-medium">Font size</p>
-                        <p className="text-txt text-sm">Medium</p>
-                    </div>
-                </div>
             </div>
         </div>
     );

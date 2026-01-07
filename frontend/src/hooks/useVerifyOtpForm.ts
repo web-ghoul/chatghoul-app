@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, type FormEvent, type KeyboardEvent, type ClipboardEvent, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './useAuth';
-import { env } from '../lib/env';
+import { env } from '../functions/env';
 
 const OTP_LENGTH = 6;
 

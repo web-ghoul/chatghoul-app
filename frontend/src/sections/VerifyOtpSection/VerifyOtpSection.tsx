@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import VerifyOtpForm from '../../forms/VerifyOtpForm/VerifyOtpForm';
 import { useVerifyOtpForm } from '../../hooks/useVerifyOtpForm';
-import { env } from '../../lib/env';
+import { env } from '../../functions/env';
 
 export default function VerifyOtpSection() {
     const { identifier } = useVerifyOtpForm();

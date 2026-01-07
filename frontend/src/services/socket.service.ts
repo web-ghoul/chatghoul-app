@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
-import { getAuthToken } from './cookies';
-import { env } from './env';
+import { getAuthToken } from '../functions/cookies';
+import { env } from '../functions/env';
 
 const SOCKET_URL = env.SOCKET_URL;
 

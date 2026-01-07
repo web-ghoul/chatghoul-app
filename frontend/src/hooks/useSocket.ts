@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import socketService from '../lib/socketService';
+import { socketService } from '../services/socket.service';
 import { useAuthStore } from '../globals/useAuthStore';
 import { useSocketStore } from '../globals/useSocketStore';
 import { useChatsStore } from '../globals/useChatsStore';
@@ -26,16 +26,38 @@ export function useSocket() {
 
     const isInitialized = useRef(false);
 
+    // Play notification sound
+    const playNotificationSound = useCallback(() => {
+        const { user } = useAuthStore.getState();
+        if (user?.settings?.sounds === false) return;
+
+        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+        audio.play().catch(err => console.error('Failed to play notification sound:', err));
+    }, []);
+
     // Handle new message event
     const handleNewMessage = useCallback((message: Message) => {
+        const { user } = useAuthStore.getState();
+        const currentUserId = user?._id;
+
+        // Don't notify for self
+        if (String(message.sender._id) === String(currentUserId)) {
+            addMessage(message);
+            return;
+        }
+
         console.log('New message received:', message);
         addMessage(message);
+
+        // Play sound
+        playNotificationSound();
+
         // Mark as delivered immediately
         if (message.room) {
             messageService.markAsDelivered(String(message.room))
                 .catch(err => console.error('Failed to mark as delivered:', err));
         }
-    }, [addMessage]);
+    }, [addMessage, playNotificationSound]);
 
     // Handle force logout event
     const handleForceLogout = useCallback((data: { message: string }) => {

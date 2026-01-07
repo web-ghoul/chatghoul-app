@@ -1,4 +1,4 @@
-import { axiosInstance } from '../api/axiosInstance';
+import { ApiService } from './api.service';
 import type { User } from '../types/app.d';
 
 export interface UpdateProfilePayload {
@@ -21,56 +21,58 @@ export interface UpdateSettingsPayload {
     sounds?: boolean;
 }
 
-const userService = {
+class UserService extends ApiService {
+    // Get current user profile
+    public async getMe(): Promise<User> {
+        return this.get<User>('/users/me');
+    }
+
     // Search users
-    searchUsers: async (query: string) => {
-        const response = await axiosInstance.get<User[]>(`/users/search?q=${query}`);
-        return response.data;
-    },
+    public async searchUsers(query: string): Promise<User[]> {
+        return this.get<User[]>(`/users/search?q=${query}`);
+    }
 
     // Get my media
-    getMyMedia: async (type: string) => {
-        const response = await axiosInstance.get(`/users/me/media?type=${type}`);
-        return response.data;
-    },
+    public async getMyMedia(type: string): Promise<any> {
+        return this.get(`/users/me/media?type=${type}`);
+    }
 
     // Update profile (name, about, avatar string reset)
-    updateProfile: async (payload: UpdateProfilePayload) => {
-        const response = await axiosInstance.patch<User>('/users/me', payload);
-        return response.data;
-    },
+    public async updateProfile(payload: UpdateProfilePayload): Promise<User> {
+        return this.patch<User>('/users/me', payload);
+    }
 
     // Upload avatar
-    updateAvatar: async (file: File) => {
+    public async updateAvatar(file: File): Promise<User> {
         const formData = new FormData();
         formData.append('avatar', file);
-        const response = await axiosInstance.patch<User>('/users/me/avatar', formData, {
+        return this.patch<User>('/users/me/avatar', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
         });
-        return response.data;
-    },
+    }
 
     // Update settings
-    updateSettings: async (payload: UpdateSettingsPayload) => {
-        // Backend key is 'settings' but we pass payload. Wait, controller takes UpdateSettingsDto.
-        // Let's check backend DTO structure. Assuming it takes partial settings object.
-        const response = await axiosInstance.patch<User>('/users/me/settings', payload);
-        return response.data;
-    },
+    public async updateSettings(payload: UpdateSettingsPayload): Promise<User> {
+        return this.patch<User>('/users/me/settings', payload);
+    }
 
     // Block user
-    blockUser: async (userId: string) => {
-        const response = await axiosInstance.patch(`/users/${userId}/block`);
-        return response.data;
-    },
+    public async blockUser(userId: string): Promise<any> {
+        return this.patch(`/users/${userId}/block`);
+    }
 
     // Unblock user
-    unblockUser: async (userId: string) => {
-        const response = await axiosInstance.patch(`/users/${userId}/unblock`);
-        return response.data;
-    },
-};
+    public async unblockUser(userId: string): Promise<any> {
+        return this.patch(`/users/${userId}/unblock`);
+    }
 
+    // Report user
+    public async reportUser(userId: string): Promise<any> {
+        return this.patch(`/users/${userId}/report`);
+    }
+}
+
+export const userService = new UserService();
 export default userService;

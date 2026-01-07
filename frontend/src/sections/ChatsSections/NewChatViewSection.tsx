@@ -80,9 +80,9 @@ const NewChatViewSection = () => {
             {/* Search Input */}
             <div className="px-5">
                 <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-txt w-4 h-4" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-txt w-3.5 h-3.5" />
                     <input
-                        className="w-full bg-secondary border-none rounded-lg py-2 pl-10 pr-4 text-white focus:ring-1 focus:ring-primary outline-none"
+                        className="w-full bg-secondary border-none rounded-lg py-1.5 pl-10 pr-4 text-white focus:ring-1 focus:ring-primary outline-none text-sm"
                         placeholder="Search users by name, email, or phone..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -94,13 +94,13 @@ const NewChatViewSection = () => {
             {/* New Group Button */}
             <div className="px-4 w-full">
                 <button
-                    className="transition-all hover:bg-secondary rounded-lg p-4 flex justify-start items-center gap-6 w-full hover:cursor-pointer"
+                    className="transition-all hover:bg-secondary rounded-lg p-3 flex justify-start items-center gap-6 w-full hover:cursor-pointer"
                     onClick={() => setChatTab("new_group")}
                 >
-                    <div className="bg-primary p-2 text-black w-12 h-12 flex justify-center items-center rounded-full">
-                        <AddUsersIcon className="w-6 h-auto" />
+                    <div className="bg-primary p-2 text-black w-11 h-11 flex justify-center items-center rounded-full">
+                        <AddUsersIcon className="w-5 h-auto" />
                     </div>
-                    <h5 className="font-medium text-white">New Group</h5>
+                    <h5 className="font-medium text-white text-sm">New Group</h5>
                 </button>
             </div>
 
@@ -117,7 +117,7 @@ const NewChatViewSection = () => {
                             onClick={() => handleUserClick(user)}
                             className="flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-secondary transition-all cursor-pointer group"
                         >
-                            <div className="w-12 h-12 rounded-full bg-gray-600 flex-shrink-0">
+                            <div className="w-11 h-11 rounded-full bg-gray-600 flex-shrink-0">
                                 {user.avatar ? (
                                     <img
                                         src={user.avatar}

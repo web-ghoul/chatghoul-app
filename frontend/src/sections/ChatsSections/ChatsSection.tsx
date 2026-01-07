@@ -28,6 +28,7 @@ const ChatsSection = () => {
       {roomTab === "media" ? <RoomMediaSection /> : <></>}
       {roomTab === "permissions" ? <RoomPermissionsSection /> : <></>}
       {roomTab === "search" ? <RoomSearchSection /> : <></>}
+      {roomTab === "starred" ? <StarredMessagesSection isRoomSpecific /> : <></>}
     </section>
   );
 };

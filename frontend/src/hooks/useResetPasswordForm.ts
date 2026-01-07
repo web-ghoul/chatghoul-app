@@ -1,7 +1,7 @@
 import { useState, useEffect, type FormEvent, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './useAuth';
-import { env } from '../lib/env';
+import { env } from '../functions/env';
 
 export function useResetPasswordForm() {
     const { resetPassword, isLoading } = useAuth();

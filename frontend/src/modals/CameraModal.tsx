@@ -151,8 +151,8 @@ const CameraModal = ({ open, onOpenChange, onCapture }: CameraModalProps) => {
                                 onClick={handleRetake}
                                 className="flex flex-col items-center gap-1 text-txt hover:text-white transition-colors"
                             >
-                                <div className="p-3 rounded-full bg-white/5">
-                                    <RefreshCcw className="w-6 h-6" />
+                                <div className="p-2.5 rounded-full bg-white/5">
+                                    <RefreshCcw className="w-5 h-5" />
                                 </div>
                                 <span className="text-[10px] uppercase font-bold">Retake</span>
                             </button>
@@ -160,8 +160,8 @@ const CameraModal = ({ open, onOpenChange, onCapture }: CameraModalProps) => {
                                 onClick={handleConfirm}
                                 className="flex flex-col items-center gap-1 text-primary hover:text-primary/80 transition-colors"
                             >
-                                <div className="p-3 rounded-full bg-primary/10">
-                                    <Check className="w-6 h-6" />
+                                <div className="p-2.5 rounded-full bg-primary/10">
+                                    <Check className="w-5 h-5" />
                                 </div>
                                 <span className="text-[10px] uppercase font-bold">Use Photo</span>
                             </button>

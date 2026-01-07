@@ -1,3 +1,4 @@
+import { Pin } from "lucide-react";
 import { useChatsStore } from "../../globals/useChatsStore";
 import { useAuthStore } from "../../globals/useAuthStore";
 import { useSocketStore } from "../../globals/useSocketStore";
@@ -5,7 +6,11 @@ import SearchIcon from "../../icons/SearchIcon";
 import Icon from "../Icon/Icon";
 import RoomMenu from "./RoomMenu";
 
-const RoomHeader = () => {
+interface RoomHeaderProps {
+  onShowPins?: () => void;
+}
+
+const RoomHeader = ({ onShowPins }: RoomHeaderProps) => {
   const currentRoomId = useChatsStore((state) => state.room);
   const rooms = useChatsStore((state) => state.rooms);
   const setRoomTab = useChatsStore((state) => state.setRoomTab);
@@ -66,13 +71,22 @@ const RoomHeader = () => {
         </div>
         <div className="grid justify-start items-center gap-0">
           <h3 className="text-white text-base font-medium line-clamp-1">{displayInfo.name}</h3>
-          <p className="text-txt text-xs">{displayInfo.isOnline ? 'online' : 'click here for group info'}</p>
+          <p className="text-txt text-xs truncate max-w-[400px]">
+            {room.type === 'group'
+              ? room.participants.map(p => p.name).join(', ')
+              : (displayInfo.isOnline ? 'online' : 'click here for contact info')}
+          </p>
         </div>
       </div>
 
       <div className="flex items-center gap-1">
+        {onShowPins && (
+          <Icon variant="chats" onClick={onShowPins}>
+            <Pin className="text-txt w-4 h-4" />
+          </Icon>
+        )}
         <Icon variant="chats" onClick={() => setRoomTab("search")}>
-          <SearchIcon className="text-txt w-5 h-auto" />
+          <SearchIcon className="text-txt w-4 h-auto" />
         </Icon>
         <RoomMenu />
       </div>

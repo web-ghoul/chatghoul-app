@@ -11,7 +11,7 @@ const ChatsHeader = () => {
       <h1 className={`text-2xl text-white font-medium`}>ChatGhoul</h1>
       <div className="flex justify-center items-center gap-2">
         <Icon variant="chats" onClick={() => setChatTab("new_chat")}>
-          <AddChatIcon className="text-white w-5 h-auto" />
+          <AddChatIcon className="text-white w-4 h-auto" />
         </Icon>
         <Menu />
       </div>

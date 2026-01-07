@@ -1,8 +1,9 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useChatsStore } from '../globals/useChatsStore';
+import { useAuthStore } from '../globals/useAuthStore';
 import messageService from '../services/message.service';
 import roomService from '../services/room.service';
-import socketService from '../lib/socketService';
+import { socketService } from '../services/socket.service';
 import { toast } from 'sonner';
 
 export function useChatInput() {
@@ -131,9 +132,16 @@ export function useChatInput() {
 
     // Handle key press (Enter to send)
     const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
+        const { user } = useAuthStore.getState();
+        const enterIsSend = user?.settings?.enterIsSend !== false; // Default to true
+
+        if (e.key === 'Enter') {
+            if (enterIsSend && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+            // If enterIsSend is false, we don't preventDefault, allowing the default behavior
+            // Note: standard HTML 'input' doesn't support new lines even with Shift+Enter.
         }
     }, [sendMessage]);
 
@@ -150,6 +158,23 @@ export function useChatInput() {
         };
     }, [currentRoom, previewUrl]);
 
+    const room = useChatsStore((state) => state.rooms.find(r => r._id === currentRoom));
+    const user = useAuthStore((state) => state.user);
+
+    const getUserId = (u: any): string => {
+        if (!u) return '';
+        return typeof u === 'string' ? u : u._id;
+    };
+
+    const isGroupAdmin = room?.type === 'group' && (
+        getUserId(room.superAdmin) === user?._id ||
+        room.admins?.some(a => getUserId(a) === user?._id)
+    );
+
+    const canSendMessages = room?.type !== 'group' ||
+        room.permissions?.sendMessages !== 'admins' ||
+        isGroupAdmin;
+
     return {
         message,
         setMessage: handleTypingChange,
@@ -162,7 +187,7 @@ export function useChatInput() {
         previewUrl,
         fileType,
         handleKeyPress,
-        isDisabled: !currentRoom,
+        isDisabled: !currentRoom || !canSendMessages,
     };
 }
 

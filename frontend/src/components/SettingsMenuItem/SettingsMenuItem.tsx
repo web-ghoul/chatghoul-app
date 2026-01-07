@@ -21,7 +21,7 @@ const SettingsMenuItem = ({
                 onClick={onClick}
                 className={`grid grid-cols-[auto_1fr_auto] justify-stretch items-center gap-4 p-4 transition-all hover:bg-secondary/50 cursor-pointer`}
             >
-                <div className={`flex justify-center items-center w-10 h-10 rounded-full ${logout ? "text-red-400" : "text-txt"} [&_svg]:h-6 [&_svg]:w-6`}>
+                <div className={`flex justify-center items-center w-9 h-9 rounded-full ${logout ? "text-red-400" : "text-txt"} [&_svg]:h-5 [&_svg]:w-5`}>
                     {icon}
                 </div>
                 <div className="grid justify-stretch items-center gap-0.5">

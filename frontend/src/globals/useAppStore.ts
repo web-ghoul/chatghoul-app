@@ -7,18 +7,21 @@ export type AppState = {
   tab: TabTypes;
   tabsStack: TabTypes[];
   settingsTab: SettingsTabTypes;
+  viewerImageUrl: string | null;
 };
 
 type AppActions = {
   setTab: (payload: TabTypes) => void;
   setTabsStackBack: () => void;
   setSettingsTab: (payload: SettingsTabTypes) => void;
+  setViewerImageUrl: (payload: string | null) => void;
 };
 
 export const useAppStore = create<AppState & AppActions>((set) => ({
   tab: "chats",
   tabsStack: ["chats"],
   settingsTab: "main",
+  viewerImageUrl: null,
 
   setTab: (payload) => {
     return set((state) => {
@@ -41,4 +44,5 @@ export const useAppStore = create<AppState & AppActions>((set) => ({
       return { settingsTab: payload };
     });
   },
+  setViewerImageUrl: (payload) => set({ viewerImageUrl: payload }),
 }));

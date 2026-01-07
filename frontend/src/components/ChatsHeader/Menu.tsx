@@ -22,16 +22,16 @@ const Menu = () => {
     <DropdownMenu>
       <DropdownMenuTrigger className="outline-none">
         <Icon variant="chats">
-          <MenuIcon className="text-white w-5 h-auto" />
+          <MenuIcon className="text-white w-4 h-auto" />
         </Icon>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuItem onClick={() => setChatTab("new_group")}>
-          <AddUsersIcon />
+          <AddUsersIcon className="w-4 h-auto" />
           New group
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setChatTab("starred_messages")}>
-          <StarIcon />
+          <StarIcon className="w-4 h-auto" />
           Starred messages
         </DropdownMenuItem>
         <DropdownMenuSeparator className="bg-gray-500/30" />
@@ -39,7 +39,7 @@ const Menu = () => {
           onClick={() => setIsLogoutModalOpen(true)}
           className="hover:bg-red-400/15 hover:text-red-400 group"
         >
-          <LogoutIcon className="transition-all group-hover:text-red-400" />
+          <LogoutIcon className="w-4 h-auto transition-all group-hover:text-red-400" />
           Logout
         </DropdownMenuItem>
       </DropdownMenuContent>

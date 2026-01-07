@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import ForgotPasswordForm from '../../forms/ForgotPasswordForm/ForgotPasswordForm';
-import { env } from '../../lib/env';
+import { env } from '../../functions/env';
 
 export default function ForgotPasswordSection() {
     return (

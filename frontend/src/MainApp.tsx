@@ -7,6 +7,7 @@ import ChatsSection from './sections/ChatsSections/ChatsSection';
 import SettingsSection from './sections/SettingsSection/SettingsSection';
 import ProfileSection from './sections/ProfileSection/ProfileSection';
 import ForceLogoutModal from './modals/ForceLogoutModal';
+import ImageViewer from './components/ImageViewer/ImageViewer';
 
 const MainApp = () => {
     const tab = useAppStore((state) => state.tab);
@@ -24,6 +25,7 @@ const MainApp = () => {
             {tab === "settings" ? <SettingsSection /> : <></>}
             {tab === "profile" ? <ProfileSection /> : <></>}
             <ForceLogoutModal />
+            <ImageViewer />
         </main>
     );
 }

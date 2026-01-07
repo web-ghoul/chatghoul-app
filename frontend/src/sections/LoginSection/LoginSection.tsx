@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import LoginForm from '../../forms/LoginForm/LoginForm';
-import { env } from '../../lib/env';
+import { env } from '../../functions/env';
 
 export default function LoginSection() {
     return (

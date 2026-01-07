@@ -1,0 +1,42 @@
+
+> frontend@0.0.0 build
+> tsc -b && vite build
+
+[36mvite v7.3.0 [32mbuilding client environment for production...[36m[39m
+transforming...
+
+/fonts/Cairo/Cairo-ExtraLight.ttf referenced in /fonts/Cairo/Cairo-ExtraLight.ttf didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/fonts/Cairo/Cairo-Light.ttf referenced in /fonts/Cairo/Cairo-Light.ttf didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/fonts/Cairo/Cairo-Medium.ttf referenced in /fonts/Cairo/Cairo-Medium.ttf didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/fonts/Cairo/Cairo-SemiBold.ttf referenced in /fonts/Cairo/Cairo-SemiBold.ttf didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/fonts/Cairo/Cairo-Bold.ttf referenced in /fonts/Cairo/Cairo-Bold.ttf didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/fonts/Cairo/Cairo-ExtraBold.ttf referenced in /fonts/Cairo/Cairo-ExtraBold.ttf didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/fonts/Cairo/Cairo-Black.ttf referenced in /fonts/Cairo/Cairo-Black.ttf didn't resolve at build time, it will remain unchanged to be resolved at runtime
+[32m✓[39m 2036 modules transformed.
+[33m[plugin vite:reporter] 
+(!) C:/webGhoul/chatghoul/frontend/src/services/message.service.ts is dynamically imported by C:/webGhoul/chatghoul/frontend/src/globals/useChatsStore.ts but also statically imported by C:/webGhoul/chatghoul/frontend/src/hooks/useChatInput.ts, C:/webGhoul/chatghoul/frontend/src/hooks/useRoomMessages.ts, C:/webGhoul/chatghoul/frontend/src/hooks/useSocket.ts, C:/webGhoul/chatghoul/frontend/src/sections/ChatsSections/StarredMessagesSection.tsx, dynamic import will not move module into another chunk.
+[39m
+[33m[plugin vite:reporter] 
+(!) C:/webGhoul/chatghoul/frontend/src/services/room.service.ts is dynamically imported by C:/webGhoul/chatghoul/frontend/src/globals/useChatsStore.ts, C:/webGhoul/chatghoul/frontend/src/globals/useChatsStore.ts but also statically imported by C:/webGhoul/chatghoul/frontend/src/components/RoomCard/Menu.tsx, C:/webGhoul/chatghoul/frontend/src/hooks/useChatInput.ts, C:/webGhoul/chatghoul/frontend/src/hooks/useMediaDialog.ts, C:/webGhoul/chatghoul/frontend/src/hooks/useRoomsList.ts, C:/webGhoul/chatghoul/frontend/src/sections/ChatsSections/NewChatViewSection.tsx, C:/webGhoul/chatghoul/frontend/src/sections/ChatsSections/NewGroupSection.tsx, C:/webGhoul/chatghoul/frontend/src/sections/ChatsSections/RoomInfoSection.tsx, C:/webGhoul/chatghoul/frontend/src/sections/ChatsSections/RoomMediaSection.tsx, dynamic import will not move module into another chunk.
+[39m
+[33m[plugin vite:reporter] 
+(!) C:/webGhoul/chatghoul/frontend/src/services/user.service.ts is dynamically imported by C:/webGhoul/chatghoul/frontend/src/globals/useChatsStore.ts, C:/webGhoul/chatghoul/frontend/src/globals/useChatsStore.ts, C:/webGhoul/chatghoul/frontend/src/globals/useChatsStore.ts but also statically imported by C:/webGhoul/chatghoul/frontend/src/App.tsx, C:/webGhoul/chatghoul/frontend/src/components/ProfileAbout/ProfileAbout.tsx, C:/webGhoul/chatghoul/frontend/src/components/ProfileAvatar/ProfileAvatar.tsx, C:/webGhoul/chatghoul/frontend/src/components/ProfileEmail/ProfileEmail.tsx, C:/webGhoul/chatghoul/frontend/src/components/ProfileName/ProfileName.tsx, C:/webGhoul/chatghoul/frontend/src/components/ProfilePhone/ProfilePhone.tsx, C:/webGhoul/chatghoul/frontend/src/components/RoomCard/Menu.tsx, C:/webGhoul/chatghoul/frontend/src/sections/ChatsSections/NewChatViewSection.tsx, C:/webGhoul/chatghoul/frontend/src/sections/ChatsSections/NewGroupSection.tsx, C:/webGhoul/chatghoul/frontend/src/sections/SettingsSection/ChatSettingsPanel.tsx, C:/webGhoul/chatghoul/frontend/src/sections/SettingsSection/NotificationsSettingsPanel.tsx, C:/webGhoul/chatghoul/frontend/src/sections/SettingsSection/PrivacySettingsPanel.tsx, C:/webGhoul/chatghoul/frontend/src/sections/SettingsSection/ThemeSettingsPanel.tsx, C:/webGhoul/chatghoul/frontend/src/sections/SettingsSection/WallpaperSettingsPanel.tsx, dynamic import will not move module into another chunk.
+[39m
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mindex.html                    [39m[1m[2m  0.48 kB[22m[1m[22m[2m │ gzip:   0.29 kB[22m
+[2mdist/[22m[32massets/settings-DqKWjdxY.png  [39m[1m[2m 31.23 kB[22m[1m[22m
+[2mdist/[22m[35massets/index-CmUHy1T2.css     [39m[1m[2m 73.86 kB[22m[1m[22m[2m │ gzip:  12.60 kB[22m
+[2mdist/[22m[36massets/index-B0aE9zxz.js      [39m[1m[33m659.49 kB[39m[22m[2m │ gzip: 199.44 kB[22m
+[33m
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[32m✓ built in 6.37s[39m

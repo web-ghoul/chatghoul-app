@@ -40,6 +40,12 @@ class MessageService extends ApiService {
             `/rooms/${roomId}/messages/mark-delivered`
         );
     }
+
+    public async deleteMessage(messageId: string): Promise<{ success: boolean }> {
+        return this.delete<{ success: boolean }>(
+            `/messages/${messageId}`
+        );
+    }
 }
 
 export const messageService = new MessageService();

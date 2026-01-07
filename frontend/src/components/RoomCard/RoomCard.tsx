@@ -123,7 +123,7 @@ const RoomCard = ({ room }: RoomCardProps) => {
         </div>
         <div className="flex justify-between items-center gap-1">
           <div className="flex items-center gap-1 min-w-0">
-            {room.lastMessage && String(room.lastMessage.sender._id) === String(currentUser?._id) && (
+            {room.lastMessage && String(room.lastMessage.sender?._id) === String(currentUser?._id) && (
               <>
                 {room.lastMessage.readBy?.length > 0 ? (
                   <DoubleCheckIcon className="w-4 h-auto text-[#53bdeb] flex-shrink-0" />

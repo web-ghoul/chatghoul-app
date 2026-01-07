@@ -15,6 +15,11 @@ export class UsersController {
         return this.usersService.searchUsers(query, req.user._id);
     }
 
+    @Get('me')
+    async getMe(@Req() req) {
+        return this.usersService.getMe(req.user._id);
+    }
+
     @Get('me/media')
     async getMyMedia(@Query('type') type: string, @Req() req) {
         return this.usersService.getUserMedia(req.user._id, type);
@@ -44,5 +49,10 @@ export class UsersController {
     @Patch(':id/unblock')
     async unblockUser(@Param('id') id: string, @Req() req) {
         return this.usersService.unblockUser(req.user._id, id);
+    }
+
+    @Patch(':id/report')
+    async reportUser(@Param('id') id: string, @Req() req) {
+        return this.usersService.reportUser(req.user._id, id);
     }
 }

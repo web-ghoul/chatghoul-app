@@ -1,5 +1,6 @@
 import { useAppStore } from "../../globals/useAppStore";
 import { useAuthStore } from "../../globals/useAuthStore";
+import UserAvatar from "../../components/UserAvatar/UserAvatar";
 
 const UserSettingsSection = () => {
   const setTab = useAppStore((state) => state.setTab);
@@ -9,18 +10,12 @@ const UserSettingsSection = () => {
       <div
         className={`grid grid-cols-[auto_1fr] justify-stretch items-center gap-4 p-4 transition-all hover:bg-secondary rounded-xl cursor-pointer`}
       >
-        <div
-          className="m-auto relative bg-cover bg-center bg-no-repeat w-18 h-18 rounded-full overflow-hidden bg-secondary group hover:cursor-pointer border border-solid border-secondary"
-          style={{
-            backgroundImage: user?.avatar ? `url('${user.avatar}')` : 'none',
-          }}
-        >
-          {!user?.avatar && (
-            <div className="w-full h-full flex items-center justify-center bg-primary/10 text-primary text-2xl font-bold uppercase">
-              {user?.name?.charAt(0)}
-            </div>
-          )}
-        </div>
+        <UserAvatar
+          src={user?.avatar}
+          name={user?.name}
+          size="xl"
+          className="m-auto"
+        />
         <div className="grid justify-stretch items-center gap-0">
           <h6 className="text-white text-lg truncate font-medium">
             {user?.name || "User"}

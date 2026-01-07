@@ -13,6 +13,12 @@ export class UsersService {
         private readonly cloudinaryService: CloudinaryService,
     ) { }
 
+    async getMe(userId: string) {
+        const user = await this.userModel.findById(userId).select('-password');
+        if (!user) throw new NotFoundException('User not found');
+        return user;
+    }
+
     async searchUsers(query: string, currentUserId: string) {
         if (!query) return [];
 
@@ -63,6 +69,7 @@ export class UsersService {
         delete userObj.settings;
         delete userObj.contacts;
         delete userObj.blockedUsers;
+        delete userObj.reportedUsers;
         delete userObj.password;
 
         return userObj;
@@ -116,6 +123,15 @@ export class UsersService {
     async unblockUser(userId: string, targetId: string) {
         return this.userModel.findByIdAndUpdate(userId, {
             $pull: { blockedUsers: targetId }
+        }, { new: true });
+    }
+
+    async reportUser(userId: string, targetId: string) {
+        if (userId === targetId) {
+            throw new ConflictException('Cannot report yourself');
+        }
+        return this.userModel.findByIdAndUpdate(userId, {
+            $addToSet: { reportedUsers: targetId }
         }, { new: true });
     }
 

@@ -2,6 +2,8 @@ import { Body, Controller, Get, Param, Patch, Post, Query, Req, UseGuards, UseIn
 import { FileInterceptor } from '@nestjs/platform-express';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
+import { UpdateRoomDto } from './dto/update-room.dto';
+import { AddParticipantsDto } from './dto/add-participants.dto';
 import { ChangeSuperAdminDto } from './dto/change-super-admin.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
@@ -23,6 +25,33 @@ export class RoomsController {
     @Get(':id')
     async getRoom(@Param('id') id: string, @Req() req) {
         return this.roomsService.getRoomById(id, req.user._id);
+    }
+
+    @Patch(':id')
+    async updateRoom(
+        @Param('id') id: string,
+        @Body() updateRoomDto: UpdateRoomDto,
+        @Req() req,
+    ) {
+        return this.roomsService.updateRoom(id, updateRoomDto, req.user._id);
+    }
+
+    @Post(':id/participants')
+    async addParticipants(
+        @Param('id') id: string,
+        @Body() addParticipantsDto: AddParticipantsDto,
+        @Req() req,
+    ) {
+        return this.roomsService.addParticipants(id, addParticipantsDto.userIds, req.user._id);
+    }
+
+    @Post(':id/admins/:userId')
+    async promoteToAdmin(
+        @Param('id') id: string,
+        @Param('userId') userIdToPromote: string,
+        @Req() req,
+    ) {
+        return this.roomsService.promoteToAdmin(id, userIdToPromote, req.user._id);
     }
 
     @Patch(':id/super-admin')
@@ -81,5 +110,10 @@ export class RoomsController {
     @Delete(':id')
     async deleteRoom(@Param('id') id: string, @Req() req) {
         return this.roomsService.deleteRoom(id, req.user._id);
+    }
+
+    @Delete(':id/messages')
+    async clearMessages(@Param('id') id: string, @Req() req) {
+        return this.roomsService.clearRoomMessages(id, req.user._id);
     }
 }

@@ -1,4 +1,3 @@
-import { useChatsStore } from "../../globals/useChatsStore";
 import CloseIcon from "../../icons/CloseIcon";
 import MenuIcon from "../../icons/MenuIcon";
 import BlockIcon from "../../icons/BlockIcon";
@@ -13,15 +12,25 @@ import {
     DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
+import { useRoomMenu } from "../../hooks/useRoomMenu";
+
 const RoomMenu = () => {
-    const setRoom = useChatsStore((state) => state.setRoom);
-    const setRoomTab = useChatsStore((state) => state.setRoomTab);
+    const {
+        room,
+        isBlocked,
+        handleBlockToggle,
+        handleReport,
+        handleClearChat,
+        handleDeleteChat,
+        setRoom,
+        setRoomTab,
+    } = useRoomMenu();
 
     return (
         <DropdownMenu>
             <DropdownMenuTrigger className="outline-none">
                 <Icon variant="chats">
-                    <MenuIcon className="text-txt w-5 h-auto" />
+                    <MenuIcon className="text-txt w-4 h-auto" />
                 </Icon>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -33,34 +42,43 @@ const RoomMenu = () => {
                     <CloseIcon />
                     Close chat
                 </DropdownMenuItem>
+
+                {room?.type === 'private' && (
+                    <>
+                        <DropdownMenuSeparator className="bg-gray-500/30" />
+                        <DropdownMenuItem onClick={handleReport}>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+                                <line x1="4" x2="4" y1="22" y2="15" />
+                            </svg>
+                            Report
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={handleBlockToggle}
+                            className="hover:bg-red-400/15 hover:text-red-400 group"
+                        >
+                            <BlockIcon className="transition-all group-hover:text-red-400" />
+                            {isBlocked ? "Unblock" : "Block"}
+                        </DropdownMenuItem>
+                    </>
+                )}
+
                 <DropdownMenuSeparator className="bg-gray-500/30" />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleClearChat}>
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
-                        <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-                        <line x1="4" x2="4" y1="22" y2="15" />
-                    </svg>
-                    Report
-                </DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-red-400/15 hover:text-red-400 group">
-                    <BlockIcon className="transition-all group-hover:text-red-400" />
-                    Block
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-gray-500/30" />
-                <DropdownMenuItem>
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
+                        width="20"
+                        height="20"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -73,9 +91,12 @@ const RoomMenu = () => {
                     </svg>
                     Clear chat
                 </DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-red-400/15 hover:text-red-400 group">
+                <DropdownMenuItem
+                    onClick={handleDeleteChat}
+                    className="hover:bg-red-400/15 hover:text-red-400 group"
+                >
                     <DeleteIcon className="transition-all group-hover:text-red-400" />
-                    Delete chat
+                    {room?.type === 'group' ? 'Exit group' : 'Delete chat'}
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

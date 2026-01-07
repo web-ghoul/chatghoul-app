@@ -36,6 +36,9 @@ export class Message {
 
     @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], default: [] })
     starredBy: Types.ObjectId[];
+
+    @Prop({ default: false })
+    isPinned: boolean;
 }
 
 export const MessageSchema = SchemaFactory.createForClass(Message);

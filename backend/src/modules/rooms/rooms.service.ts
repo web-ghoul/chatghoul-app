@@ -4,6 +4,7 @@ import { Model, Types } from 'mongoose';
 import { Room, RoomDocument } from '../../schemas/room.schema';
 import { Message, MessageDocument } from '../../schemas/message.schema';
 import { CreateRoomDto } from './dto/create-room.dto';
+import { UpdateRoomDto } from './dto/update-room.dto';
 import { Media, MediaDocument } from '../../schemas/media.schema'; // Add this import
 import { CloudinaryService } from '../cloudinary/cloudinary.service'; // Add this import
 import { UsersService } from '../users/users.service';
@@ -69,6 +70,11 @@ export class RoomsService {
             .populate('admins', 'name avatar about settings contacts')
             .populate('superAdmin', 'name avatar about settings contacts')
             .populate('lastMessage')
+            .populate({
+                path: 'pinnedMessages.message',
+                populate: { path: 'sender', select: 'name avatar about settings contacts' }
+            })
+            .populate('pinnedMessages.pinnedBy', 'name avatar about settings contacts')
             .sort({ updatedAt: -1 })
             .exec();
 
@@ -81,6 +87,15 @@ export class RoomsService {
             if (roomObj.superAdmin) {
                 roomObj.superAdmin = this.usersService.sanitizeUserProfile(roomObj.superAdmin, userId);
             }
+
+            roomObj.pinnedMessages?.forEach(pm => {
+                if (pm.pinnedBy) {
+                    pm.pinnedBy = this.usersService.sanitizeUserProfile(pm.pinnedBy, userId);
+                }
+                if (pm.message && pm.message['sender']) {
+                    pm.message['sender'] = this.usersService.sanitizeUserProfile(pm.message['sender'], userId);
+                }
+            });
 
             return roomObj;
         });
@@ -200,6 +215,8 @@ export class RoomsService {
             expiresAt,
         } as any);
 
+        await this.messageModel.findByIdAndUpdate(messageId, { isPinned: true });
+
         await room.save();
         return this.getRoomById(roomId, userId);
     }
@@ -220,6 +237,8 @@ export class RoomsService {
         }
 
         room.pinnedMessages = room.pinnedMessages.filter(pm => pm.message.toString() !== messageId) as any;
+
+        await this.messageModel.findByIdAndUpdate(messageId, { isPinned: false });
 
         await room.save();
         return this.getRoomById(roomId, userId);
@@ -332,5 +351,112 @@ export class RoomsService {
 
             return { message: 'Exited group' };
         }
+    }
+
+    async updateRoom(roomId: string, updateRoomDto: UpdateRoomDto, userId: string) {
+        const room = await this.roomModel.findById(roomId);
+        if (!room) throw new NotFoundException('Room not found');
+
+        if (room.type !== 'group') {
+            throw new BadRequestException('Can only update group rooms');
+        }
+
+        const isAdmin = room.admins.some(id => String(id) === String(userId)) || String(room.superAdmin) === String(userId);
+
+        // If settings are being edited, check permissions
+        const editingSettings = updateRoomDto.name || updateRoomDto.description || updateRoomDto.image || updateRoomDto.permissions;
+        if (editingSettings) {
+            const canEdit = room.permissions?.editSettings === 'everyone' || isAdmin;
+            if (!canEdit) {
+                throw new ForbiddenException('You do not have permission to edit group settings');
+            }
+        }
+
+        if (updateRoomDto.name) room.name = updateRoomDto.name;
+        if (updateRoomDto.description) room.description = updateRoomDto.description;
+        if (updateRoomDto.image) room.image = updateRoomDto.image;
+        if (updateRoomDto.permissions) {
+            // Only admins can change permissions themselves
+            if (!isAdmin) throw new ForbiddenException('Only admins can change group permissions');
+            room.permissions = { ...(room.permissions as any)?.toObject?.() || room.permissions, ...updateRoomDto.permissions };
+        }
+
+        await room.save();
+        return this.getRoomById(roomId, userId);
+    }
+
+    async addParticipants(roomId: string, userIds: string[], userId: string) {
+        const room = await this.roomModel.findById(roomId);
+        if (!room) throw new NotFoundException('Room not found');
+
+        if (room.type !== 'group') {
+            throw new BadRequestException('Can only add participants to group rooms');
+        }
+
+        const isAdmin = room.admins.some(id => String(id) === String(userId)) || String(room.superAdmin) === String(userId);
+        const canAdd = room.permissions?.addMembers === 'everyone' || isAdmin;
+
+        if (!canAdd) {
+            throw new ForbiddenException('You do not have permission to add members to this group');
+        }
+
+        const newUserIds = userIds.map(id => new Types.ObjectId(id));
+
+        // Filter out existing participants
+        const existingParticipantIds = room.participants.map(id => String(id));
+        const participantsToAdd = newUserIds.filter(id => !existingParticipantIds.includes(String(id)));
+
+        if (participantsToAdd.length === 0) {
+            return this.getRoomById(roomId, userId);
+        }
+
+        room.participants.push(...participantsToAdd);
+        await room.save();
+
+        return this.getRoomById(roomId, userId);
+    }
+
+    async promoteToAdmin(roomId: string, targetUserId: string, userId: string) {
+        const room = await this.roomModel.findById(roomId);
+        if (!room) throw new NotFoundException('Room not found');
+
+        if (room.type !== 'group') {
+            throw new BadRequestException('Can only promote to admin in group rooms');
+        }
+
+        const isAdmin = room.admins.some(id => String(id) === String(userId)) || String(room.superAdmin) === String(userId);
+        if (!isAdmin) {
+            throw new ForbiddenException('Only admins can promote other members to admin');
+        }
+
+        if (!room.participants.some(id => String(id) === String(targetUserId))) {
+            throw new BadRequestException('Target user is not a participant in this room');
+        }
+
+        const targetIdObj = new Types.ObjectId(targetUserId);
+        if (!room.admins.some(id => id.equals(targetIdObj))) {
+            room.admins.push(targetIdObj);
+            await room.save();
+        }
+
+        return this.getRoomById(roomId, userId);
+    }
+
+    async clearRoomMessages(roomId: string, userId: string) {
+        const room = await this.roomModel.findById(roomId);
+        if (!room) throw new NotFoundException('Room not found');
+
+        if (!room.participants.some(id => String(id) === String(userId))) {
+            throw new ForbiddenException('You are not a participant in this room');
+        }
+
+        await this.messageModel.deleteMany({ room: roomId });
+
+        // Update room's last message
+        await this.roomModel.findByIdAndUpdate(roomId, {
+            $set: { lastMessage: null }
+        });
+
+        return { message: 'Chat cleared' };
     }
 }

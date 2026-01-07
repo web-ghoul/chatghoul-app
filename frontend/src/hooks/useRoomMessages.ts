@@ -2,7 +2,7 @@ import { useEffect, useCallback, useRef } from 'react';
 import { useChatsStore } from '../globals/useChatsStore';
 import { useAuthStore } from '../globals/useAuthStore';
 import messageService from '../services/message.service';
-import socketService from '../lib/socketService';
+import { socketService } from '../services/socket.service';
 
 export function useRoomMessages() {
     const currentRoom = useChatsStore((state) => state.room);

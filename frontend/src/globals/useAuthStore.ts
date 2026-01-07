@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { setAuthToken, removeAuthToken } from '../lib/cookies';
+import { setAuthToken, removeAuthToken } from '../functions/cookies';
 import type { User } from '../types/app.d';
 
 export interface AuthState {

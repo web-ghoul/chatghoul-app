@@ -2,8 +2,8 @@ import { IsEnum, IsMongoId, IsNotEmpty, IsOptional, IsString } from 'class-valid
 
 export class SendMessageDto {
     @IsString()
-    @IsNotEmpty()
-    message: string;
+    @IsOptional()
+    message?: string;
 
     @IsEnum(['text', 'image', 'video', 'audio', 'file'])
     @IsNotEmpty()
@@ -11,7 +11,7 @@ export class SendMessageDto {
 
     @IsString()
     @IsOptional()
-    mediaUrl?: string; // Optional if type is text
+    mediaUrl?: string;
 
     @IsString()
     @IsOptional()

@@ -70,7 +70,7 @@ const NewGroupSection = () => {
         <section className="grid justify-stretch items-start content-start gap-4 border-x-2 border-x-secondary h-screen py-2 bg-secondary/20">
             <header className="flex items-center gap-4 px-5 min-h-14 border-b border-gray/20">
                 <Icon onClick={() => step === 1 ? setChatTab("chats") : setStep(1)}>
-                    <ArrowLeft className="text-white w-5 h-auto" />
+                    <ArrowLeft className="text-white w-4 h-4" />
                 </Icon>
                 <div className="grid">
                     <h1 className="text-xl text-white font-medium">New group</h1>
@@ -85,14 +85,14 @@ const NewGroupSection = () => {
                             {selectedUsers.map(u => (
                                 <div key={u._id} className="flex items-center gap-1 bg-primary/20 text-primary px-2 py-1 rounded-full text-xs">
                                     <span>{u.name}</span>
-                                    <X size={12} className="cursor-pointer" onClick={() => toggleUser(u)} />
+                                    <X size={10} className="cursor-pointer" onClick={() => toggleUser(u)} />
                                 </div>
                             ))}
                         </div>
                         <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-txt w-4 h-4" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-txt w-3.5 h-3.5" />
                             <input
-                                className="w-full bg-secondary border-none rounded-lg py-2 pl-10 pr-4 text-white focus:ring-1 focus:ring-primary outline-none"
+                                className="w-full bg-secondary border-none rounded-lg py-1.5 pl-10 pr-4 text-white focus:ring-1 focus:ring-primary outline-none text-sm"
                                 placeholder="Search users..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -112,23 +112,23 @@ const NewGroupSection = () => {
                                     onClick={() => toggleUser(user)}
                                     className="flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-secondary transition-all cursor-pointer group"
                                 >
-                                    <div className="w-12 h-12 rounded-full bg-gray-600 flex-shrink-0 relative">
+                                    <div className="w-11 h-11 rounded-full bg-gray-600 flex-shrink-0 relative">
                                         {user.avatar ? (
                                             <img src={user.avatar} className="w-full h-full rounded-full object-cover" />
                                         ) : (
-                                            <div className="w-full h-full rounded-full flex items-center justify-center bg-primary/10 text-primary uppercase font-bold">
+                                            <div className="w-full h-full rounded-full flex items-center justify-center bg-primary/10 text-primary uppercase font-bold text-sm">
                                                 {user.name?.charAt(0)}
                                             </div>
                                         )}
                                         {selectedUsers.some(u => u._id === user._id) && (
                                             <div className="absolute -bottom-1 -right-1 bg-primary text-black rounded-full p-0.5 border-2 border-background">
-                                                <Check size={12} strokeWidth={4} />
+                                                <Check size={10} strokeWidth={4} />
                                             </div>
                                         )}
                                     </div>
                                     <div className="grid">
-                                        <h5 className="text-white font-medium">{user.name}</h5>
-                                        <p className="text-xs text-txt truncate">{user.status || user.about || "Hey there! I am using ChatGhoul."}</p>
+                                        <h5 className="text-white font-medium text-sm">{user.name}</h5>
+                                        <p className="text-[11px] text-txt truncate">{user.status || user.about || "Hey there! I am using ChatGhoul."}</p>
                                     </div>
                                 </div>
                             ))
@@ -139,9 +139,9 @@ const NewGroupSection = () => {
                         <div className="flex justify-center p-4">
                             <button
                                 onClick={() => setStep(2)}
-                                className="bg-primary hover:bg-primary/90 text-black p-4 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95"
+                                className="bg-primary hover:bg-primary/90 text-black p-3 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95"
                             >
-                                <ArrowLeft className="rotate-180" />
+                                <ArrowLeft className="rotate-180" size={20} />
                             </button>
                         </div>
                     )}

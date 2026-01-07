@@ -39,6 +39,9 @@ export class User {
     blockedUsers: string[];
 
     @Prop({ default: [] })
+    reportedUsers: string[];
+
+    @Prop({ default: [] })
     contacts: string[];
 
     @Prop({

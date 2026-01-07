@@ -59,6 +59,22 @@ class RoomService extends ApiService {
         );
     }
 
+    public async clearRoomMessages(roomId: string): Promise<{ message: string }> {
+        return this.delete<{ message: string }>(`/rooms/${roomId}/messages`);
+    }
+
+    public async updateRoom(roomId: string, payload: Partial<Room>): Promise<Room> {
+        return this.patch<Room>(`/rooms/${roomId}`, payload);
+    }
+
+    public async addParticipants(roomId: string, userIds: string[]): Promise<Room> {
+        return this.post<Room>(`/rooms/${roomId}/participants`, { userIds });
+    }
+
+    public async promoteToAdmin(roomId: string, userId: string): Promise<Room> {
+        return this.post<Room>(`/rooms/${roomId}/admins/${userId}`, {});
+    }
+
     public async deleteRoom(roomId: string): Promise<{ message: string }> {
         return this.delete<{ message: string }>(`/rooms/${roomId}`);
     }

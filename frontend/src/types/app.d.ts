@@ -8,6 +8,8 @@ export interface User {
     status: 'online' | 'offline';
     about?: string;
     lastSeen?: string;
+    blockedUsers?: string[];
+    reportedUsers?: string[];
     createdAt: string;
     updatedAt: string;
     settings?: {
@@ -16,6 +18,10 @@ export interface User {
         enterIsSend?: boolean;
         avatarPrivacy?: 'everyone' | 'contacts' | 'nobody';
         aboutPrivacy?: 'everyone' | 'contacts' | 'nobody';
+        messageNotifications?: boolean;
+        showPreviews?: boolean;
+        reactionNotifications?: boolean;
+        sounds?: boolean;
     };
 }
 
@@ -25,14 +31,25 @@ export interface Room {
     type: 'private' | 'group';
     participants: User[];
     createdBy: string;
-    superAdmin?: string;
-    admins?: string[];
+    superAdmin?: string | User;
+    admins?: (string | User)[];
+    permissions?: {
+        sendMessages: 'everyone' | 'admins';
+        editSettings: 'everyone' | 'admins';
+        addMembers: 'everyone' | 'admins';
+    };
     name?: string;
     description?: string;
     image?: string;
     lastMessage?: Message;
     unreadCounts: Record<string, number>;
     pinnedBy: string[];
+    pinnedMessages: {
+        message: string | Message;
+        pinnedBy: string | User;
+        pinnedAt: string;
+        expiresAt?: string;
+    }[];
     createdAt: string;
     updatedAt: string;
 }
@@ -49,6 +66,7 @@ export interface Message {
     readBy: string[];
     deliveredTo: string[];
     starredBy: string[];
+    isPinned: boolean;
     createdAt: string;
     updatedAt: string;
 }

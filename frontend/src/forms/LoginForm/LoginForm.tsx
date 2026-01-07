@@ -4,7 +4,7 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Button } from '../../components/ui/button';
 import { useLoginForm } from '../../hooks/useLoginForm';
-import { env } from '../../lib/env';
+import { env } from '../../functions/env';
 
 export default function LoginForm() {
     const {

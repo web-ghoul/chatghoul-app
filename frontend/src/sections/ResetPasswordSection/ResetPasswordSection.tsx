@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import ResetPasswordForm from '../../forms/ResetPasswordForm/ResetPasswordForm';
-import { env } from '../../lib/env';
+import { env } from '../../functions/env';
 
 export default function ResetPasswordSection() {
     return (

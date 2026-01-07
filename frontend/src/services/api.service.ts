@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { getAuthToken, removeAuthToken } from '../lib/cookies';
-import { env } from '../lib/env';
+import { getAuthToken } from '../functions/cookies';
+import { env } from '../functions/env';
 
 import { useAuthStore } from '../globals/useAuthStore';
 

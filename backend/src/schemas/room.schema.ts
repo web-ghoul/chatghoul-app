@@ -12,6 +12,9 @@ class RoomPermissions {
 
     @Prop({ enum: ['everyone', 'admins'], default: 'admins' })
     editSettings: string;
+
+    @Prop({ enum: ['everyone', 'admins'], default: 'admins' })
+    addMembers: string;
 }
 
 @Schema()

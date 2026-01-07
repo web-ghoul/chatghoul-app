@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Patch, Query, Req, UseGuards } from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
@@ -15,11 +15,19 @@ export class MessagesController {
         return this.messagesService.getStarredMessages(req.user._id, page);
     }
 
-    @Post(':id/star')
+    @Patch(':id/star')
     async toggleStar(
         @Param('id') id: string,
         @Req() req,
     ) {
         return this.messagesService.toggleStar(id, req.user._id);
+    }
+
+    @Delete(':id')
+    async deleteMessage(
+        @Param('id') id: string,
+        @Req() req,
+    ) {
+        return this.messagesService.deleteMessage(id, req.user._id);
     }
 }
