@@ -11,14 +11,14 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import Icon from "../Icon/Icon";
 import { useMediaDialog } from "../../hooks/useMediaDialog";
 
-type MediaTabType = 'all' | 'image' | 'video' | 'audio' | 'file';
+type MediaTabType = "all" | "image" | "video" | "audio" | "file";
 
 const tabs: { key: MediaTabType; label: string; icon: string }[] = [
-  { key: 'all', label: 'All', icon: '📁' },
-  { key: 'image', label: 'Photos', icon: '📷' },
-  { key: 'video', label: 'Videos', icon: '🎥' },
-  { key: 'audio', label: 'Audio', icon: '🎵' },
-  { key: 'file', label: 'Files', icon: '📎' },
+  { key: "all", label: "All", icon: "📁" },
+  { key: "image", label: "Photos", icon: "📷" },
+  { key: "video", label: "Videos", icon: "🎥" },
+  { key: "audio", label: "Audio", icon: "🎵" },
+  { key: "file", label: "Files", icon: "📎" },
 ];
 
 const MediaDialog = () => {
@@ -38,7 +38,7 @@ const MediaDialog = () => {
         <button>
           <Tooltip>
             <TooltipTrigger>
-              <Icon onClick={() => { }} active={false}>
+              <Icon onClick={() => {}} active={false}>
                 <MediaIcon />
               </Icon>
             </TooltipTrigger>
@@ -50,7 +50,9 @@ const MediaDialog = () => {
         <DialogHeader>
           <DialogTitle>Media</DialogTitle>
           <DialogDescription>
-            {hasRoom ? 'View shared media in this conversation' : 'Select a chat to view media'}
+            {hasRoom
+              ? "View shared media in this conversation"
+              : "Select a chat to view media"}
           </DialogDescription>
         </DialogHeader>
 
@@ -60,14 +62,17 @@ const MediaDialog = () => {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${activeTab === tab.key
-                  ? 'bg-primary text-background'
-                  : 'text-txt hover:bg-secondary'
-                }`}
+              className={`cursor-pointer px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                activeTab === tab.key
+                  ? "bg-primary text-background"
+                  : "text-txt hover:bg-secondary"
+              }`}
             >
               <span>{tab.icon}</span>
               <span>{tab.label}</span>
-              <span className="text-xs opacity-70">({mediaCounts[tab.key]})</span>
+              <span className="text-xs opacity-70">
+                ({mediaCounts[tab.key]})
+              </span>
             </button>
           ))}
         </div>
@@ -85,7 +90,9 @@ const MediaDialog = () => {
           ) : media.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-32 text-txt">
               <p>No media found</p>
-              <p className="text-sm">Shared photos, videos, and files will appear here</p>
+              <p className="text-sm">
+                Shared photos, videos, and files will appear here
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-2 p-2">
@@ -94,13 +101,13 @@ const MediaDialog = () => {
                   key={item._id}
                   className="aspect-square bg-secondary rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
                 >
-                  {item.type === 'image' ? (
+                  {item.type === "image" ? (
                     <img
                       src={item.url}
-                      alt={item.fileName || 'Image'}
+                      alt={item.fileName || "Image"}
                       className="w-full h-full object-cover"
                     />
-                  ) : item.type === 'video' ? (
+                  ) : item.type === "video" ? (
                     <video
                       src={item.url}
                       className="w-full h-full object-cover"
@@ -108,7 +115,7 @@ const MediaDialog = () => {
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center p-2 text-center">
                       <span className="text-3xl mb-2">
-                        {item.type === 'audio' ? '🎵' : '📎'}
+                        {item.type === "audio" ? "🎵" : "📎"}
                       </span>
                       <span className="text-xs text-txt line-clamp-2">
                         {item.fileName || item.type}
