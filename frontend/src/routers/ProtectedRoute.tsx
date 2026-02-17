@@ -1,18 +1,26 @@
-import { Navigate, Outlet } from 'react-router-dom';
-import { useAuthStore } from '../globals/useAuthStore';
+import { useEffect } from "react";
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuthStore } from "../globals/useAuthStore";
 
 interface ProtectedRouteProps {
-    redirectTo?: string;
+  redirectTo?: string;
 }
 
-export function ProtectedRoute({ redirectTo = '/login' }: ProtectedRouteProps) {
-    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+export function ProtectedRoute({ redirectTo = "/login" }: ProtectedRouteProps) {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-    if (!isAuthenticated) {
-        return <Navigate to={redirectTo} replace />;
-    }
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
 
-    return <Outlet />;
+  if (!isAuthenticated) {
+    return <Navigate to={redirectTo} replace />;
+  }
+
+  return <Outlet />;
 }
 
 export default ProtectedRoute;

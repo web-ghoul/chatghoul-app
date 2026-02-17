@@ -23,7 +23,9 @@ const ProfileSection = () => {
             <ProfileAvatar />
             <div className="text-center">
               <h4 className="text-white font-bold">{user?.name}</h4>
-              <p className="text-txt text-sm italic opacity-75 max-w-[200px] truncate m-auto">{user?.about || "Available"}</p>
+              <p className="text-txt text-sm italic opacity-75 max-w-[200px] truncate m-auto">
+                {user?.about || "Available"}
+              </p>
             </div>
           </div>
           <ProfileName />

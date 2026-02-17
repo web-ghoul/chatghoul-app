@@ -40,7 +40,12 @@ const ProfileName = () => {
             autoFocus
           />
           <div className="flex gap-2">
-            <div onClick={() => { setName(user?.name || ""); setIsEditing(false); }}>
+            <div
+              onClick={() => {
+                setName(user?.name || "");
+                setIsEditing(false);
+              }}
+            >
               <CloseIcon className="text-red-400 w-5 h-auto cursor-pointer" />
             </div>
             <div onClick={handleSave}>
@@ -50,16 +55,17 @@ const ProfileName = () => {
         </div>
       ) : (
         <div className="flex justify-between items-center gap-3">
-          <h6 className="text-white font-medium">{user?.name || "No name set"}</h6>
+          <h6 className="text-white font-medium">
+            {user?.name || "No name set"}
+          </h6>
           <div onClick={() => setIsEditing(true)}>
-            <EditIcon
-              className="text-txt w-9 h-auto cursor-pointer p-2 opacity-0 group-hover:opacity-100 transition-opacity"
-            />
+            <EditIcon className="text-txt w-9 h-auto cursor-pointer p-2 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
         </div>
       )}
       <p className="text-[10px] text-txt/60 mt-2 leading-tight">
-        This is not your username or pin. This name will be visible to your ChatGhoul contacts.
+        This is not your username or pin. This name will be visible to your
+        ChatGhoul contacts.
       </p>
     </div>
   );

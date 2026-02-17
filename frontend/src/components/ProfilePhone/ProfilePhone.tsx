@@ -23,7 +23,9 @@ const ProfilePhone = () => {
       setIsEditing(false);
       toast.success("Phone number updated");
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to update phone number");
+      toast.error(
+        error.response?.data?.message || "Failed to update phone number",
+      );
     }
   };
 
@@ -41,7 +43,13 @@ const ProfilePhone = () => {
             autoFocus
           />
           <div className="flex gap-2">
-            <Icon variant="chats" onClick={() => { setPhone(user?.phone || ""); setIsEditing(false); }}>
+            <Icon
+              variant="chats"
+              onClick={() => {
+                setPhone(user?.phone || "");
+                setIsEditing(false);
+              }}
+            >
               <CloseIcon className="text-red-400 w-5 h-auto cursor-pointer" />
             </Icon>
             <Icon variant="chats" onClick={handleSave}>
@@ -53,15 +61,18 @@ const ProfilePhone = () => {
         <div className="flex justify-between items-center gap-3">
           <div className="flex justify-start items-center gap-3">
             <PhoneIcon className="text-txt w-5 font-bold" />
-            <h6 className="text-white font-medium">{user?.phone || "No phone set"}</h6>
+            <h6 className="text-white font-medium">
+              {user?.phone || "No phone set"}
+            </h6>
           </div>
           <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <Icon variant="chats" onClick={() => setIsEditing(true)}>
-              <EditIcon
-                className="text-txt w-5 h-auto cursor-pointer"
-              />
+              <EditIcon className="text-txt w-5 h-auto cursor-pointer" />
             </Icon>
-            <Icon variant="chats" onClick={() => handleCopyText(user?.phone || "")}>
+            <Icon
+              variant="chats"
+              onClick={() => handleCopyText(user?.phone || "")}
+            >
               <CopyIcon />
             </Icon>
           </div>

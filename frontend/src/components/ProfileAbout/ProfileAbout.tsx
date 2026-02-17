@@ -35,7 +35,12 @@ const ProfileAbout = () => {
             autoFocus
           />
           <div className="flex gap-2">
-            <div onClick={() => { setAbout(user?.about || ""); setIsEditing(false); }}>
+            <div
+              onClick={() => {
+                setAbout(user?.about || "");
+                setIsEditing(false);
+              }}
+            >
               <CloseIcon className="text-red-400 w-5 h-auto cursor-pointer" />
             </div>
             <div onClick={handleSave}>
@@ -49,9 +54,7 @@ const ProfileAbout = () => {
             {user?.about || "Hey there! I am using ChatGhoul."}
           </h6>
           <div onClick={() => setIsEditing(true)}>
-            <EditIcon
-              className="text-txt w-9 h-auto cursor-pointer p-2 opacity-0 group-hover:opacity-100 transition-opacity"
-            />
+            <EditIcon className="text-txt w-9 h-auto cursor-pointer p-2 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
         </div>
       )}
